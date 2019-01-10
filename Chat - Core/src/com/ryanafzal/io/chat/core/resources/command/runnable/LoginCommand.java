@@ -11,6 +11,8 @@ import com.ryanafzal.io.chat.core.server.Connection;
 
 public class LoginCommand implements RunnableCommand {
 	
+	private static final long serialVersionUID = 7838053858700842032L;
+	
 	private final String USERNAME;
 	private final int PASSWORD;
 	private final boolean REGISTER;

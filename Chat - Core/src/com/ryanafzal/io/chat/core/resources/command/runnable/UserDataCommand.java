@@ -6,6 +6,8 @@ import com.ryanafzal.io.chat.core.resources.user.User;
 
 public class UserDataCommand implements RunnableCommand {
 	
+	private static final long serialVersionUID = 6304972741634413731L;
+	
 	private final User USER;
 	
 	public UserDataCommand(User user) {

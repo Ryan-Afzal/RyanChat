@@ -31,7 +31,7 @@ public class FromServerThread implements Runnable {
 					Packet input = (Packet) fromServerThread.readObject();
 					PacketContents contents = input.getPacketContents();
 					if (contents instanceof PacketMessage) {
-						//TODO
+						this.client.outputPacketMessage((PacketMessage) contents, input.getPacketData());
 					} else if (contents instanceof PacketCommand) {
 						PacketCommand cmd = (PacketCommand) contents;
 						

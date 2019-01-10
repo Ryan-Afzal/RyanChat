@@ -142,16 +142,12 @@ public class Server extends ApplicationWindow {
 					
 					this.distributePacket(packet, connections);
 				}
-				
-				ArrayList<Connection> output = new ArrayList<Connection>(1);
-				output.add(this.connections.get(address));
-				this.distributePacket(packet, output);
 			}
 			
-			//TODO
+			ArrayList<Connection> output = new ArrayList<Connection>(1);
+			output.add(this.connections.get(address));
+			this.distributePacket(packet, output);
 		}
-		
-		throw new UnsupportedOperationException();
 	}
 	
 	private void distributePacket(Packet packet, Iterable<Connection> recipients) {

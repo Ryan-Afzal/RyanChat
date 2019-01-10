@@ -100,7 +100,7 @@ public class Client extends ApplicationWindow {
 			//TODO Process Commands.
 		} else {//TODO Change the User.SERVER.getID() and Level.USER to the complex system.
 			PacketData data = new PacketData(this.user.getID(), User.SERVER.getID(), Level.USER);
-			Packet packet = new Packet(new PacketMessage(input), data);
+			Packet packet = new Packet(new PacketMessage(this.user.getName(), input), data);
 			this.toServer.addPacket(packet);
 		}
 	}
@@ -109,7 +109,6 @@ public class Client extends ApplicationWindow {
 		try {
 			this.IP = InetAddress.getLocalHost();//this.IP = InetAddress.getByName("51S500036590");
 			this.socket = new Socket(IP, PORT);
-            Thread.sleep(1000);
 			
             this.toServer = new ToServerThread(this.socket, this);
 			this.fromServer = new FromServerThread(this.socket, this);
@@ -122,8 +121,6 @@ public class Client extends ApplicationWindow {
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 	}

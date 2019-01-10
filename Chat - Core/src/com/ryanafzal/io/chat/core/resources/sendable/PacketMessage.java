@@ -4,9 +4,11 @@ public class PacketMessage extends PacketContents {
 	
 	private static final long serialVersionUID = 1L;
 	
+	public final String USERNAME;
 	public final String MESSAGE;
 	
-	public PacketMessage(String message) {
+	public PacketMessage(String username, String message) {
+		this.USERNAME = username;
 		this.MESSAGE = message;
 	}
 

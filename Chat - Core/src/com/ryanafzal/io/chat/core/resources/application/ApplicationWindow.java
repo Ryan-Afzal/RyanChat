@@ -1,6 +1,10 @@
 package com.ryanafzal.io.chat.core.resources.application;
 
+import java.time.format.DateTimeFormatter;
+
 import com.ryanafzal.io.chat.core.resources.command.CommandRegistry;
+import com.ryanafzal.io.chat.core.resources.sendable.PacketData;
+import com.ryanafzal.io.chat.core.resources.sendable.PacketMessage;
 import com.ryanafzal.io.chat.core.resources.user.permission.Level;
 
 import javafx.application.Application;
@@ -118,6 +122,16 @@ public abstract class ApplicationWindow extends Application {
 	 */
 	public void outputCommandMessage(String message) {
 		this.outputArea.addLine(COMMAND_CARAT + " " + message, COMMAND_COLOR);
+	}
+	
+	public void outputPacketMessage(PacketMessage message, PacketData data) {
+		String header = "["
+				+ data.TIMESTAMP.format(DateTimeFormatter.ISO_LOCAL_TIME)
+				+ "]"
+				+ message.USERNAME
+				+ ": ";
+		
+		this.outputMessage(header + message.MESSAGE, data.LEVEL);
 	}
 	
 	public boolean isReady() {

@@ -1,6 +1,8 @@
 package com.ryanafzal.io.chat.core.resources.command;
 
-public interface RunnableCommand {
+import java.io.Serializable;
+
+public interface RunnableCommand extends Serializable {
 	
 	/**
 	 * Run the command with the specified application

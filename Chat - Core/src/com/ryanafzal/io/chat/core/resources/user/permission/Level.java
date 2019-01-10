@@ -8,11 +8,11 @@ public enum Level implements Serializable {
 	/**
 	 * Accessible to all users of the system.
 	 */
-	USER(0, Color.WHITE), 
+	USER(0, Color.BLACK), 
 	/**
 	 * Accessible to moderators and above.
 	 */
-	MODERATOR(1, Color.YELLOW), 
+	MODERATOR(1, Color.MAGENTA), 
 	/**
 	 * Accessible to officers and above.
 	 */
@@ -24,7 +24,7 @@ public enum Level implements Serializable {
 	/**
 	 * Accessible only to the server itself. This should be used only for serverside commands.
 	 */
-	SERVER(4, Color.CYAN);
+	SERVER(4, Color.GREEN);
 	
 	private final int num;
 	private final Color color;

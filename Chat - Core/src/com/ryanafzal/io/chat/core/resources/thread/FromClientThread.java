@@ -11,8 +11,6 @@ import com.ryanafzal.io.chat.core.resources.command.RunnableCommand;
 import com.ryanafzal.io.chat.core.resources.sendable.Packet;
 import com.ryanafzal.io.chat.core.resources.sendable.PacketCommand;
 import com.ryanafzal.io.chat.core.resources.sendable.PacketContents;
-import com.ryanafzal.io.chat.core.resources.sendable.PacketMessage;
-import com.ryanafzal.io.chat.core.resources.user.User;
 import com.ryanafzal.io.chat.core.resources.user.permission.Level;
 
 public class FromClientThread implements Runnable {
@@ -47,7 +45,7 @@ public class FromClientThread implements Runnable {
 							}
 						}
 					} else {
-						//TODO Redistribute packet to all recipients
+						this.server.distributePacket(input);
 					}
 
 				} catch (ClassNotFoundException e) {
