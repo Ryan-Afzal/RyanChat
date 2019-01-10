@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import com.ryanafzal.io.chat.core.resources.application.ApplicationWindow;
 import com.ryanafzal.io.chat.core.resources.command.Command;
@@ -19,6 +22,8 @@ import com.ryanafzal.io.chat.core.resources.thread.ToServerThread;
 import com.ryanafzal.io.chat.core.resources.user.User;
 import com.ryanafzal.io.chat.core.resources.user.permission.Level;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -28,6 +33,9 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.Separator;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Toggle;
+import javafx.scene.control.ToggleButton;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 
@@ -42,25 +50,32 @@ public class Client extends ApplicationWindow {
 	private ToServerThread toServer;
 	private FromServerThread fromServer;
 	
+	private boolean register;
+	
 	//Login GUI
 	private Label usernameLabel;
 	private Label passwordLabel;
 	private TextField usernameField;
 	private PasswordField passwordField;
 	private Button loginButton;
+	private ToggleButton registerButton;
+	private ToggleGroup registerGroup;
 	
 	private Separator separator;
 	
 	//User Info
-	
+	private Label userDataUsernameLabel;
+	private Label userDataPermissionLevelLabel;
 	
 	public Client() {
 		super();
 		
-		GridPane grid = new GridPane();
-	    grid.setHgap(10);
-	    grid.setVgap(10);
-	    grid.setPadding(new Insets(0, 10, 0, 10));
+		this.register = false;
+		
+		GridPane loginPane = new GridPane();
+	    loginPane.setHgap(10);
+	    loginPane.setVgap(10);
+	    loginPane.setPadding(new Insets(0, 10, 0, 10));
 		
 		this.usernameLabel = new Label("Username: ");
 		this.passwordLabel = new Label("Password: ");
@@ -75,30 +90,61 @@ public class Client extends ApplicationWindow {
 				passwordField.setText("");
 			}
 		});
-		grid.add(this.usernameLabel, 0, 0);
-		grid.add(this.passwordLabel, 0, 1);
-		grid.add(this.usernameField, 1, 0);
-		grid.add(this.passwordField, 1, 1);
-		grid.add(loginButton, 0, 2);
+		this.registerGroup = new ToggleGroup();
+		this.registerGroup.selectedToggleProperty().addListener(new ChangeListener<Toggle>(){
+		    public void changed(ObservableValue<? extends Toggle> ov,
+		            Toggle toggle, Toggle new_toggle) {
+		                if (new_toggle == null) {
+		                	register = false;
+		                } else {
+		                	register = (Boolean) new_toggle.getUserData();
+		                }
+		             }
+		    });
+		
+		this.registerButton = new ToggleButton("Register");
+		this.registerButton.setUserData(true);
+		this.registerButton.setStyle("-fx-base: salmon;");
+		this.registerButton.setToggleGroup(this.registerGroup);
+		loginPane.add(this.usernameLabel, 0, 0);
+		loginPane.add(this.passwordLabel, 0, 1);
+		loginPane.add(this.usernameField, 1, 0);
+		loginPane.add(this.passwordField, 1, 1);
+		loginPane.add(this.loginButton, 0, 2);
+		loginPane.add(this.registerButton, 1, 2);
 		
 		this.separator = new Separator();
 		
+		GridPane userDataPane = new GridPane();
+		userDataPane.setHgap(10);
+		userDataPane.setVgap(10);
+		userDataPane.setPadding(new Insets(0, 10, 0, 10));
+		
+		this.userDataUsernameLabel = new Label("<Username Unavailable>");
+		this.userDataPermissionLevelLabel = new Label("<Rank Unavailable>");
+		userDataPane.add(this.userDataUsernameLabel, 0, 0);
+		userDataPane.add(this.userDataPermissionLevelLabel, 0, 1);
+		
 		VBox right = new VBox();
-		right.getChildren().add(grid);
-		right.getChildren().add(separator);
+		right.getChildren().add(loginPane);
+		right.getChildren().add(this.separator);
+		right.getChildren().add(userDataPane);
 		
 		this.root.setRight(right);
 	}
-
+	
 	@Override
 	public String getTitle() {
 		return "RyanChat";
 	}
-
+	
 	@Override
 	public void process(String input) {
 		if (input.charAt(0) == Command.COMMAND_CHARACTER) {
-			//TODO Process Commands.
+			List<?> args = new ArrayList<Object>(Arrays.asList(input.split(" ")));
+			args.remove(0);
+			this.registry.runCommand(input.substring(1), args, this.user.getPermissionLevel());
+			
 		} else {//TODO Change the User.SERVER.getID() and Level.USER to the complex system.
 			PacketData data = new PacketData(this.user.getID(), User.SERVER.getID(), Level.USER);
 			Packet packet = new Packet(new PacketMessage(this.user.getName(), input), data);
@@ -139,7 +185,7 @@ public class Client extends ApplicationWindow {
 	
 	private void connect(String username, String password) {
 		PacketData data = new PacketData(0, User.SERVER.getID(), Level.SERVER);
-		PacketContents contents = new PacketCommand(new LoginCommand(username, password.hashCode(), false));//TODO
+		PacketContents contents = new PacketCommand(new LoginCommand(username, password.hashCode(), this.register));
 		Packet packet = new Packet(contents, data);
 		this.toServer.addPacket(packet);
 	}
@@ -167,6 +213,12 @@ public class Client extends ApplicationWindow {
 		}
 	}
 	
+
+	@Override
+	public Level getPermissionRank() {
+		return this.user.getPermissionLevel();
+	}
+	
 	public User getUser() {
 		return this.user;
 	}
@@ -179,6 +231,28 @@ public class Client extends ApplicationWindow {
 		this.outputCommandMessage(""
 				+ "Successfully Signed In as: " + this.user.getName()
 				);
+	}
+	
+	public void refreshUserDataPane() {
+		boolean b = true;//TODO
+		if (b) return;
+		
+		Task<Void> task = new Task<Void>() {
+			@Override 
+		    protected Void call() throws Exception {
+				if (user == null) {
+					userDataUsernameLabel.setText("<Username Unavailable>");
+					userDataPermissionLevelLabel.setText("<Rank Unavailable>");
+				} else {
+					userDataUsernameLabel.setText(user.getName());
+					userDataPermissionLevelLabel.setText(user.getPermissionLevel().getName());
+				}
+				
+				return null;
+		    }
+		};
+		
+		task.run();
 	}
 
 }

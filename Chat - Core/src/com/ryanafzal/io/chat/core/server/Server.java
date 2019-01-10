@@ -117,6 +117,12 @@ public class Server extends ApplicationWindow {
 		}
 	}
 	
+
+	@Override
+	public Level getPermissionRank() {
+		return User.SERVER.getPermissionLevel();
+	}
+	
 	public static void main(String[] args) {
 		Server.launch(args);
 	}

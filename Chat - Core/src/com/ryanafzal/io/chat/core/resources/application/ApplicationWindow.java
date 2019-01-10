@@ -40,7 +40,7 @@ public abstract class ApplicationWindow extends Application {
 	
 	public ApplicationWindow() {
 		this.isRunning = true;
-		this.registry = new CommandRegistry();
+		this.registry = new CommandRegistry(this);
 		this.root = new BorderPane();
 		
 		//Center
@@ -56,10 +56,13 @@ public abstract class ApplicationWindow extends Application {
 				if (isReady) {
 					String text = inputField.getText();
 					if (!text.equals("")) {
-						process(text);
-						inputField.setText("");
 						try {
+							process(text);
+							inputField.setText("");
 							Thread.sleep(200);
+						} catch (IllegalArgumentException e) {
+							outputErrorMessage(e.getMessage());
+							e.printStackTrace();
 						} catch (InterruptedException e) {
 							e.printStackTrace();
 						}
@@ -168,5 +171,11 @@ public abstract class ApplicationWindow extends Application {
 	 * This method is called automatically when the window is closed.
 	 */
 	public abstract void onClose();
+	
+	/**
+	 * Gets the permission rank available to this application.
+	 * @return Returns the permission rank available to this application.
+	 */
+	public abstract Level getPermissionRank();
 	
 }

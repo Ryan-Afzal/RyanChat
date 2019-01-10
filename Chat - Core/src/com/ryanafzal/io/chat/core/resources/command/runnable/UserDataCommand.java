@@ -24,6 +24,7 @@ public class UserDataCommand implements RunnableCommand {
 		
 		if (bool) {
 			client.setReady(true);
+			client.refreshUserDataPane();
 			client.printWelcomeMessage();
 		}
 	}

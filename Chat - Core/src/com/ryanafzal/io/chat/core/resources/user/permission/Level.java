@@ -8,30 +8,36 @@ public enum Level implements Serializable {
 	/**
 	 * Accessible to all users of the system.
 	 */
-	USER(0, Color.BLACK), 
+	USER("User", 0, Color.BLACK), 
 	/**
 	 * Accessible to moderators and above.
 	 */
-	MODERATOR(1, Color.MAGENTA), 
+	MODERATOR("Moderator", 1, Color.MAGENTA), 
 	/**
 	 * Accessible to officers and above.
 	 */
-	OFFICER(2, Color.AQUAMARINE), 
+	OFFICER("Officer", 2, Color.AQUAMARINE), 
 	/**
 	 * Accessible to administrators and above.
 	 */
-	ADMIN(3, Color.ORANGE), 
+	ADMIN("Admin", 3, Color.ORANGE), 
 	/**
 	 * Accessible only to the server itself. This should be used only for serverside commands.
 	 */
-	SERVER(4, Color.GREEN);
+	SERVER("Server", 4, Color.GREEN);
 	
+	private final String name;
 	private final int num;
 	private final Color color;
 	
-	private Level(int num, Color color) {
+	private Level(String name, int num, Color color) {
+		this.name = name;
 		this.num = num;
 		this.color = color;
+	}
+	
+	public String getName() {
+		return this.name;
 	}
 	
 	public int getNumericValue() {
@@ -40,5 +46,9 @@ public enum Level implements Serializable {
 	
 	public Color getColor() {
 		return this.color;
+	}
+	
+	public static Level getLevelFromString(String string) {
+		throw new UnsupportedOperationException();
 	}
 }
