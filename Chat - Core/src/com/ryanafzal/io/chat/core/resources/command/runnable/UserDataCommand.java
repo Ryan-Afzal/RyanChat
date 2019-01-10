@@ -16,10 +16,14 @@ public class UserDataCommand implements RunnableCommand {
 	public void run(Object input) {
 		Client client = (Client) input;
 		
-		client.setUser(USER);
-		client.setReady(true);
+		boolean bool = client.getUser() == null;
 		
-		client.printWelcomeMessage();
+		client.setUser(USER);
+		
+		if (bool) {
+			client.setReady(true);
+			client.printWelcomeMessage();
+		}
 	}
 
 	@Override

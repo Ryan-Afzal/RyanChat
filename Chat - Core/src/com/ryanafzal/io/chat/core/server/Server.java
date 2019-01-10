@@ -5,15 +5,14 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.UUID;
 
 import com.ryanafzal.io.chat.core.resources.application.ApplicationWindow;
 import com.ryanafzal.io.chat.core.resources.sendable.Packet;
-import com.ryanafzal.io.chat.core.resources.thread.FromClientThread;
 import com.ryanafzal.io.chat.core.resources.thread.ServerThread;
-import com.ryanafzal.io.chat.core.resources.thread.ToClientThread;
 import com.ryanafzal.io.chat.core.resources.user.User;
 import com.ryanafzal.io.chat.core.resources.user.UserNotFoundException;
 import com.ryanafzal.io.chat.core.resources.user.groups.Group;
@@ -28,7 +27,8 @@ public class Server extends ApplicationWindow {
 	protected String serverHost;
 	private ServerSocket serverSocket;
 	
-	private HashSet<Connection> connections;
+	private HashSet<Connection> unmappedConnections;
+	private HashMap<Long, Connection> connections;
 	
 	private HashMap<Long, User> users;
 	private HashMap<Integer, Group> groups;
@@ -36,8 +36,9 @@ public class Server extends ApplicationWindow {
 	private Group mainServerGroup;
 	
 	public Server() {
-		this.connections = new HashSet<Connection>();
-		this.mainServerGroup = new Group(User.SERVER);
+		this.unmappedConnections = new HashSet<Connection>();
+		this.connections = new HashMap<Long, Connection>();
+		this.mainServerGroup = new Group(User.SERVER, "Global Chat", 0);
 		
 		try	{
 			this.serverHost = InetAddress.getLocalHost().getHostAddress();
@@ -120,12 +121,43 @@ public class Server extends ApplicationWindow {
 		Server.launch(args);
 	}
 	
-	public void distributePacket() {
+	public void distributePacket(Packet packet) {
+		long address = packet.getPacketData().ADDRESS;
+		if (address == this.mainServerGroup.GROUPID) {
+			HashSet<Connection> connections = new HashSet<Connection>();
+			
+			for (User u : this.users.values()) {
+				connections.add(this.connections.get(u.getID()));
+			}
+			
+			this.distributePacket(packet, connections);
+		} else {
+			for (Group g : this.groups.values()) {
+				if (address == g.GROUPID) {
+					HashSet<Connection> connections = new HashSet<Connection>();
+					
+					for (Long l : g.getUsersAtRank(packet.getPacketData().LEVEL)) {
+						connections.add(this.connections.get(l));
+					}
+					
+					this.distributePacket(packet, connections);
+				}
+				
+				ArrayList<Connection> output = new ArrayList<Connection>(1);
+				output.add(this.connections.get(address));
+				this.distributePacket(packet, output);
+			}
+			
+			//TODO
+		}
+		
 		throw new UnsupportedOperationException();
 	}
 	
-	private void distributePacket(Iterable<Connection> recipients) {
-		throw new UnsupportedOperationException();
+	private void distributePacket(Packet packet, Iterable<Connection> recipients) {
+		for (Connection c : recipients) {
+			c.queuePacket(packet);
+		}
 	}
 	
 	public void addConnection(Socket socket) {
@@ -133,32 +165,51 @@ public class Server extends ApplicationWindow {
 	}
 	
 	public void addConnection(Connection connection) {
-		this.connections.add(connection);
+		this.unmappedConnections.add(connection);
 	}
 	
-	public void destroyConnection(Socket socket){
-		this.destroyConnection(
-				this.connections
+	public void destroyConnection(Socket socket) {
+		Connection con = this.unmappedConnections
+		.stream()
+		.filter(c -> c.socket.equals(socket))
+		.findFirst()
+		.orElse(null);
+		
+		if (con == null) {
+			this.destroyConnection(this.connections
+					.values()
 					.stream()
 					.filter(c -> c.socket.equals(socket))
 					.findFirst()
 					.orElseThrow(IllegalArgumentException::new));
+		} else {
+			this.destroyConnection(con);
+		}
 	}
 	
 	public void destroyConnection(Connection connection) {
 		this.connections.remove(connection);
 	}
 	
+	public void inductConnection(long ID, Connection connection) {
+		this.unmappedConnections.remove(connection);
+		this.connections.put(ID, connection);
+	}
+	
+	public void deductConnection(long ID) {
+		this.unmappedConnections.add(this.connections.get(ID));
+		this.connections.remove(ID);
+	}
+	
 	private Connection createConnection(Socket socket) {
 		return new Connection(this, socket);
 	}
-	
 
 	public User login(String username, int password, boolean register) throws UserNotFoundException {
 		User found = this.users
 				.values()
 				.stream()
-				.filter(u -> u.getName().equals(username) && u.getPassword() == password)
+				.filter(u -> u.getName().equals(username))
 				.findFirst()
 				.orElse(null);
 		
@@ -171,7 +222,11 @@ public class Server extends ApplicationWindow {
 				throw new UserNotFoundException("User with username " + username + " and password hashcode " + password + " does not exist.");
 			}
 		} else {
-			return found;
+			if (found.getPassword() == password) {
+				return found;
+			} else {
+				throw new UserNotFoundException("Incorrect Password.");
+			}
 		}
 	}
 

@@ -15,18 +15,26 @@ public class Group {
 	
 	//Info
 	private String name;
-	private int groupID;
+	public final int GROUPID;
 	
 	private boolean inactive;
 	
-	public Group(User owner) {
+	public Group(User owner, String name, int groupID) {
+		this.name = name;
+		this.GROUPID = groupID;
+		
 		this.permissionMap = new HashMap<Long, Level>();
 		this.chainOfCommand = new PriorityQueue<User>();
 		
 		this.owner = owner;
-		this.permissionMap.put(owner.getID(), owner.getPermissionLevel());
+		this.permissionMap.put(owner.getID(), Level.ADMIN);
 		
 		this.inactive = false;
+		
+	}
+	
+	public String getName() {
+		return this.name;
 	}
 	
 	public void addUser(User user) {

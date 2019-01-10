@@ -107,7 +107,7 @@ public class Client extends ApplicationWindow {
 	
 	private void login(String username, String password) {
 		try {
-			this.IP = InetAddress.getByName("51S500036590");
+			this.IP = InetAddress.getLocalHost();//this.IP = InetAddress.getByName("51S500036590");
 			this.socket = new Socket(IP, PORT);
             Thread.sleep(1000);
 			

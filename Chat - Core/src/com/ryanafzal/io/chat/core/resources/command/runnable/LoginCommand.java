@@ -26,13 +26,19 @@ public class LoginCommand implements RunnableCommand {
 		Connection connection = (Connection) input;
 		
 		PacketData data = new PacketData(User.SERVER.getID(), 0, Level.USER);
+		
 		PacketCommand contents;
+		User u;
 		try {
-			contents = new PacketCommand(new UserDataCommand(connection.server.login(this.USERNAME, this.PASSWORD, this.REGISTER)));
+			u = connection.server.login(this.USERNAME, this.PASSWORD, this.REGISTER);
+			contents = new PacketCommand(new UserDataCommand(u));
 		} catch (UserNotFoundException e) {
 			e.printStackTrace();
 			return;
 		}
+		
+		connection.server.inductConnection(u.getID(), connection);
+		
 		Packet packet = new Packet(contents, data);
 		connection.queuePacket(packet);
 	}
