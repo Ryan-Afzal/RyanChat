@@ -19,6 +19,7 @@ import com.ryanafzal.io.chat.core.resources.thread.ToServerThread;
 import com.ryanafzal.io.chat.core.resources.user.User;
 import com.ryanafzal.io.chat.core.resources.user.permission.Level;
 
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -106,23 +107,34 @@ public class Client extends ApplicationWindow {
 	}
 	
 	private void login(String username, String password) {
-		try {
-			this.IP = InetAddress.getLocalHost();//this.IP = InetAddress.getByName("51S500036590");
-			this.socket = new Socket(IP, PORT);
-			
-            this.toServer = new ToServerThread(this.socket, this);
-			this.fromServer = new FromServerThread(this.socket, this);
-            Thread serverInThread = new Thread(this.toServer);
-            Thread serverOutThread = new Thread(this.fromServer);
-            serverInThread.start();
-            serverOutThread.start();
-            
-            this.connect(username, password);
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		final Client c = this;
+		
+		Task<Void> task = new Task<Void>() {
+			@Override 
+		    protected Void call() throws Exception {
+		    	try {
+					IP = InetAddress.getByName("51S500036590");
+					socket = new Socket(IP, PORT);
+					
+		            toServer = new ToServerThread(socket, c);
+					fromServer = new FromServerThread(socket, c);
+		            Thread serverInThread = new Thread(toServer);
+		            Thread serverOutThread = new Thread(fromServer);
+		            serverInThread.start();
+		            serverOutThread.start();
+		            
+		            connect(username, password);
+				} catch (UnknownHostException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+		    	
+				return null;
+		    }
+		};
+		
+		task.run();
 	}
 	
 	private void connect(String username, String password) {

@@ -91,11 +91,15 @@ public abstract class ApplicationWindow extends Application {
 		this.onClose();
 	}
 	
+	public void outputAlert(String message) {
+		
+	}
+	
 	/**
 	 * Outputs a message.
 	 * @param message The message to output.
 	 */
-	public synchronized void outputMessage(String message) {
+	public void outputMessage(String message) {
 		this.outputArea.addLine(message);
 	}
 	
