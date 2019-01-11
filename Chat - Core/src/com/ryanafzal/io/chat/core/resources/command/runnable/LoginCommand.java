@@ -22,7 +22,7 @@ public class LoginCommand implements RunnableCommand {
 		this.PASSWORD = password;
 		this.REGISTER = register;
 	}
-
+	
 	@Override
 	public void run(Object input) {
 		Connection connection = (Connection) input;

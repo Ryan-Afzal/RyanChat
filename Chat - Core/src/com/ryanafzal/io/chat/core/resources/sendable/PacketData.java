@@ -33,7 +33,7 @@ public class PacketData implements Serializable {
 	}
 	
 	public enum AddressType {
-		GLOBAL, SERVER, GROUP, INDIVIDUAL
+		SERVER, GROUP, INDIVIDUAL
 	}
 	
 }

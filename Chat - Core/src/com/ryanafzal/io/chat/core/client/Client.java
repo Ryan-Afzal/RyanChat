@@ -21,6 +21,7 @@ import com.ryanafzal.io.chat.core.resources.thread.FromServerThread;
 import com.ryanafzal.io.chat.core.resources.thread.ToServerThread;
 import com.ryanafzal.io.chat.core.resources.user.User;
 import com.ryanafzal.io.chat.core.resources.user.permission.Level;
+import com.ryanafzal.io.chat.core.server.Server;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -51,6 +52,7 @@ public class Client extends ApplicationWindow {
 	private FromServerThread fromServer;
 	
 	private boolean register;
+	private int currentGroupID;
 	
 	//Login GUI
 	private Label usernameLabel;
@@ -143,10 +145,10 @@ public class Client extends ApplicationWindow {
 		if (input.charAt(0) == Command.COMMAND_CHARACTER) {
 			List<?> args = new ArrayList<Object>(Arrays.asList(input.split(" ")));
 			args.remove(0);
-			this.registry.runCommand(input.substring(1), args, this.user.getPermissionLevel());
+			this.registry.runCommand(input.substring(1), args, this.getPermissionRank());
 			
 		} else {//TODO Change the PacketData.AddressType.GLOBAL to the complex address system.
-			PacketData data = new PacketData(this.user.getID(), PacketData.AddressType.GLOBAL, User.SERVER.getID(), this.user.getPermissionLevel());
+			PacketData data = new PacketData(this.user.getID(), PacketData.AddressType.GROUP, Server.GLOBAL_GROUP_ID, this.getPermissionRank());
 			Packet packet = new Packet(new PacketMessage(this.user.getName(), input), data);
 			this.toServer.addPacket(packet);
 		}
@@ -164,11 +166,12 @@ public class Client extends ApplicationWindow {
 					
 		            toServer = new ToServerThread(socket, c);
 					fromServer = new FromServerThread(socket, c);
+		            
 		            Thread serverInThread = new Thread(toServer);
 		            Thread serverOutThread = new Thread(fromServer);
 		            serverInThread.start();
 		            serverOutThread.start();
-		            
+					
 		            connect(username, password);
 				} catch (UnknownHostException e) {
 					e.printStackTrace();
@@ -216,7 +219,7 @@ public class Client extends ApplicationWindow {
 
 	@Override
 	public Level getPermissionRank() {
-		return this.user.getPermissionLevel();
+		return this.user.getPermissionLevel(this.currentGroupID);
 	}
 	
 	public User getUser() {
@@ -245,7 +248,7 @@ public class Client extends ApplicationWindow {
 					userDataPermissionLevelLabel.setText("<Rank Unavailable>");
 				} else {
 					userDataUsernameLabel.setText(user.getName());
-					userDataPermissionLevelLabel.setText(user.getPermissionLevel().getName());
+					userDataPermissionLevelLabel.setText(getPermissionRank().getName());
 				}
 				
 				return null;

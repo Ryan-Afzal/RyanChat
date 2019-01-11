@@ -1,5 +1,6 @@
 package com.ryanafzal.io.chat.core.resources.user.groups;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.PriorityQueue;
 import java.util.stream.Collectors;
@@ -10,21 +11,26 @@ import com.ryanafzal.io.chat.core.resources.user.permission.Level;
 public class Group {
 	
 	private HashMap<Long, Level> permissionMap;
-	private User owner;
 	private PriorityQueue<User> chainOfCommand;
+	private User owner;
 	
 	//Info
 	private String name;
-	public final int GROUPID;
+	public final long GROUPID;
 	
 	private boolean inactive;
 	
-	public Group(User owner, String name, int groupID) {
+	public Group(User owner, String name, long groupID) {
 		this.name = name;
 		this.GROUPID = groupID;
 		
 		this.permissionMap = new HashMap<Long, Level>();
-		this.chainOfCommand = new PriorityQueue<User>();
+		this.chainOfCommand = new PriorityQueue<User>(2, new Comparator<User> () {
+			@Override
+			public int compare(User arg0, User arg1) {
+				return arg0.getPermissionLevel(GROUPID).compareTo(arg1.getPermissionLevel(groupID));
+			}
+		});
 		
 		this.owner = owner;
 		this.permissionMap.put(owner.getID(), Level.ADMIN);
@@ -38,7 +44,12 @@ public class Group {
 	}
 	
 	public void addUser(User user) {
-		this.permissionMap.put(user.getID(), user.getPermissionLevel());
+		this.addUser(user, Level.USER);
+	}
+	
+	public void addUser(User user, Level level) {
+		user.setPermissionLevel(this.GROUPID, level);
+		this.permissionMap.put(user.getID(), level);
 	}
 	
 	public void removeUser(long ID) {
@@ -49,6 +60,8 @@ public class Group {
 			
 			if (this.owner == null) {
 				this.destroy();
+			} else {
+				this.owner.setPermissionLevel(GROUPID, Level.ADMIN);
 			}
 		}
 	}
@@ -70,6 +83,10 @@ public class Group {
 		this.permissionMap = null;
 		this.chainOfCommand = null;
 		this.inactive = true;
+	}
+	
+	public boolean inactive() {
+		return this.inactive;
 	}
 	
 }

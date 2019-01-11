@@ -8,7 +8,9 @@ import java.util.*;
 import com.ryanafzal.io.chat.core.client.Client;
 import com.ryanafzal.io.chat.core.resources.sendable.Packet;
 
-public class ToServerThread implements Runnable {
+import javafx.concurrent.Task;
+
+public class ToServerThread extends Task<Void> {
 	
 	private Socket socket;
 	private Client client;
@@ -21,11 +23,11 @@ public class ToServerThread implements Runnable {
 	}
 
 	@Override
-	public void run() {
+	public Void call() {
 		try (ObjectOutputStream toServerStream = new ObjectOutputStream(this.socket.getOutputStream())) {
 			toServerStream.flush();
 			
-			while (!this.socket.isClosed() && this.client.isRunning()) {
+			while (!this.socket.isClosed() && this.client.isRunning() && !this.isCancelled()) {
 				if (!this.packetsToSend.isEmpty()) {
 					Packet nextSend;
 					
@@ -42,6 +44,8 @@ public class ToServerThread implements Runnable {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		
+		return null;
 	}
 	
 	public synchronized void addPacket(Packet packet) {

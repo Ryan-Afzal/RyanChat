@@ -7,6 +7,9 @@ import java.net.SocketException;
 
 import com.ryanafzal.io.chat.core.server.Connection;
 import com.ryanafzal.io.chat.core.server.Server;
+
+import javafx.concurrent.Task;
+
 import com.ryanafzal.io.chat.core.resources.command.RunnableCommand;
 import com.ryanafzal.io.chat.core.resources.sendable.Packet;
 import com.ryanafzal.io.chat.core.resources.sendable.PacketCommand;
@@ -14,7 +17,7 @@ import com.ryanafzal.io.chat.core.resources.sendable.PacketContents;
 import com.ryanafzal.io.chat.core.resources.sendable.PacketData;
 import com.ryanafzal.io.chat.core.resources.user.permission.Level;
 
-public class FromClientThread implements Runnable {
+public class FromClientThread extends Task<Void> {
 
 	private Socket socket;
 	private Server server;
@@ -27,10 +30,10 @@ public class FromClientThread implements Runnable {
 	}
 
 	@Override
-	public void run() {
+	public Void call() {
 		try (ObjectInputStream fromServerThread = new ObjectInputStream(this.socket.getInputStream())) {
 
-			while (!this.socket.isClosed() && this.server.isRunning()) {
+			while (!this.socket.isClosed() && this.server.isRunning() && !this.isCancelled()) {
 				try {
 					Packet input = (Packet) fromServerThread.readObject();
 					
@@ -64,6 +67,8 @@ public class FromClientThread implements Runnable {
 		} catch(Exception ex){
 			ex.printStackTrace();
 		}
+		
+		return null;
 	}
 
 }

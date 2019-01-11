@@ -12,7 +12,9 @@ import com.ryanafzal.io.chat.core.resources.sendable.PacketCommand;
 import com.ryanafzal.io.chat.core.resources.sendable.PacketContents;
 import com.ryanafzal.io.chat.core.resources.sendable.PacketMessage;
 
-public class FromServerThread implements Runnable {
+import javafx.concurrent.Task;
+
+public class FromServerThread extends Task<Void> {
 
 	private Socket socket;
 	private Client client;
@@ -23,10 +25,10 @@ public class FromServerThread implements Runnable {
 	}
 
 	@Override
-	public void run() {
+	public Void call() {
 		try (ObjectInputStream fromServerThread = new ObjectInputStream(this.socket.getInputStream())) {
 
-			while (!this.socket.isClosed() && this.client.isRunning()) {
+			while (!this.socket.isClosed() && this.client.isRunning() && !this.isCancelled()) {
 				try {
 					Packet input = (Packet) fromServerThread.readObject();
 					PacketContents contents = input.getPacketContents();
@@ -55,6 +57,8 @@ public class FromServerThread implements Runnable {
 		} catch(Exception ex){
 			ex.printStackTrace();
 		}
+		
+		return null;
 	}
 
 

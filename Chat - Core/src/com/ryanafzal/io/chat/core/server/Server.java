@@ -23,6 +23,7 @@ public class Server extends ApplicationWindow {
 	
 	public int PORT = 440;
 	
+	public static final long GLOBAL_GROUP_ID = 0;
 	public static final String CONFIGPATH = "data\\config.txt";
 	
 	protected String serverHost;
@@ -32,14 +33,11 @@ public class Server extends ApplicationWindow {
 	private HashMap<Long, Connection> connections;
 	
 	private HashMap<Long, User> users;
-	private HashMap<Integer, Group> groups;
-	
-	private Group mainServerGroup;
+	private HashMap<Long, Group> groups;
 	
 	public Server() {
 		this.unmappedConnections = new HashSet<Connection>();
 		this.connections = new HashMap<Long, Connection>();
-		this.mainServerGroup = new Group(User.SERVER, "Global Chat", 0);
 		
 		try	{
 			this.serverHost = InetAddress.getLocalHost().getHostAddress();
@@ -70,11 +68,12 @@ public class Server extends ApplicationWindow {
 	
 	private void initData() {
 		this.users = new HashMap<Long, User>();
-		this.groups = new HashMap<Integer, Group>();
+		this.groups = new HashMap<Long, Group>();
 		
+		this.groups.put(Server.GLOBAL_GROUP_ID, new Group(User.SERVER, "Global Chat", Server.GLOBAL_GROUP_ID));
 		
 		//TODO ADD OVERRIDES HERE
-		this.users.put(1L, new User("Ryan Afzal", "ryanafzal".hashCode(), 1, Level.ADMIN));
+		
 	}
 	
 	private void startServer() {
@@ -121,42 +120,36 @@ public class Server extends ApplicationWindow {
 
 	@Override
 	public Level getPermissionRank() {
-		return User.SERVER.getPermissionLevel();
+		return Level.SERVER;
 	}
 	
 	public static void main(String[] args) {
 		Server.launch(args);
 	}
 	
+	/*
+	 * //TODO Issue here:
+	 * 
+	 * Connection that is being passed is null.
+	 * 
+	 * Reason: The 'owner' is the Server, which is a legitimate user.
+	 * However, its USERID does not correspond to a Connection
+	 */
 	public void distributePacket(Packet packet) {
 		long address = packet.getPacketData().ADDRESS;
-		/*if (packet.getPacketData().ADDRESSTYPE == PacketData.AddressType.GLOBAL) {
+		if (packet.getPacketData().ADDRESSTYPE == PacketData.AddressType.GROUP) {
+			Group g = this.groups.get(address);
+			HashSet<Connection> connections = new HashSet<Connection>();
 			
-		} else if (packet.getPacketData().ADDRESSTYPE == PacketData.AddressType.GROUP) {
-			
-		} else if (packet.getPacketData().ADDRESSTYPE == PacketData.AddressType.INDIVIDUAL) {
-			
-		}*/
-		
-		
-		if (address == this.mainServerGroup.GROUPID) {
-			
-		} else {
-			for (Group g : this.groups.values()) {
-				if (address == g.GROUPID) {
-					HashSet<Connection> connections = new HashSet<Connection>();
-					
-					for (Long l : g.getUsersAtRank(packet.getPacketData().LEVEL)) {
-						connections.add(this.connections.get(l));
-					}
-					
-					this.distributePacket(packet, connections);
-				}
+			for (Long l : g.getUsersAtRank(packet.getPacketData().LEVEL)) {
+				connections.add(this.connections.get(l));
 			}
 			
-			ArrayList<Connection> output = new ArrayList<Connection>(1);
-			output.add(this.connections.get(address));
-			this.distributePacket(packet, output);
+			this.distributePacket(packet, connections);
+		} else if (packet.getPacketData().ADDRESSTYPE == PacketData.AddressType.INDIVIDUAL) {
+			ArrayList<Connection> connections = new ArrayList<Connection>();
+			connections.add(this.connections.get(address));
+			this.distributePacket(packet, connections);
 		}
 	}
 	
@@ -221,8 +214,9 @@ public class Server extends ApplicationWindow {
 		
 		if (found == null) {
 			if (register) {
-				User output = new User(username, password, UUID.randomUUID().hashCode(), Level.USER);
+				User output = new User(username, password, UUID.randomUUID().hashCode());
 				this.addUser(output);
+				this.groups.get(Server.GLOBAL_GROUP_ID).addUser(output);
 				return output;
 			} else {
 				throw new UserNotFoundException("User with username " + username + " and password hashcode " + password + " does not exist.");

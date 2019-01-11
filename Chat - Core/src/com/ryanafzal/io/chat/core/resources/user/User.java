@@ -1,29 +1,30 @@
 package com.ryanafzal.io.chat.core.resources.user;
 
 import java.io.Serializable;
+import java.util.HashMap;
 
 import com.ryanafzal.io.chat.core.resources.user.permission.Level;
 
-public class User implements Serializable, Comparable<User> {
+public class User implements Serializable {
 	
 	private static final long serialVersionUID = 2123732792688009294L;
 	
-	public static final User SERVER = new User("SERVER", 0, 0, Level.SERVER);
+	public static final User SERVER = new User("SERVER", 0, 0);
 	
 	private String name;
 	private int password;
 	private final long ID;
-	private Level permissionLevel;
+	private HashMap<Long, Level> groupPermissionLevels;
 	
-	public User(String name, int password, long ID, Level permissionLevel) {
+	public User(String name, int password, long ID) {
 		this.name = name;
 		this.password = password;
 		this.ID = ID;
-		this.setPermissionLevel(permissionLevel);
+		this.groupPermissionLevels = new HashMap<Long, Level>();
 	}
 	
-	public User(String name, String password, long ID, Level permissionLevel) {
-		this(name, password.hashCode(), ID, permissionLevel);
+	public User(String name, String password, long ID) {
+		this(name, password.hashCode(), ID);
 	}
 	
 	public String getName() {
@@ -46,17 +47,12 @@ public class User implements Serializable, Comparable<User> {
 		return this.ID;
 	}
 
-	public Level getPermissionLevel() {
-		return permissionLevel;
+	public Level getPermissionLevel(long groupID) {
+		return this.groupPermissionLevels.get(groupID);
 	}
-
-	public void setPermissionLevel(Level permissionLevel) {
-		this.permissionLevel = permissionLevel;
-	}
-
-	@Override
-	public int compareTo(User arg0) {
-		return this.permissionLevel.compareTo(arg0.permissionLevel);
+	
+	public void setPermissionLevel(long groupID, Level level) {
+		this.groupPermissionLevels.put(groupID, level);
 	}
 
 }

@@ -6,13 +6,15 @@ import java.net.Socket;
 
 import com.ryanafzal.io.chat.core.server.Server;
 
+import javafx.concurrent.Task;
+
 /**
  * Thread which manages the {@code serverSocket} of its parent server. 
  * It accepts clients and adds their connections to the server.
  * @author s-afzalr
  *
  */
-public class ServerThread implements Runnable {
+public class ServerThread extends Task<Void> {
 	
 	private Server server;
 	private ServerSocket serverSocket;
@@ -23,8 +25,8 @@ public class ServerThread implements Runnable {
 	}
 
 	@Override
-	public void run() {
-		while (this.server.isRunning()) {
+	public Void call() {
+		while (this.server.isRunning() && !this.isCancelled()) {
 			try {
 				//Accept a connection
 				Socket socket = this.serverSocket.accept();
@@ -39,6 +41,8 @@ public class ServerThread implements Runnable {
 				this.server.outputErrorMessage("ACCEPT FAILED ON PORT: " + this.server.PORT);
 			}
 		}
+		
+		return null;
 	}
 
 }

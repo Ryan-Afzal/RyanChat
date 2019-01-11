@@ -19,18 +19,16 @@ public final class Connection {
 	protected final Socket socket;
 	protected ToClientThread toClient;
 	protected FromClientThread fromClient;
-	protected Thread toClientThread;
-	protected Thread fromClientThread;
 	
 	public Connection(Server server, Socket socket) {
 		this.server = server;
 		this.socket = socket;
 		this.toClient = new ToClientThread(socket, server);
 		this.fromClient = new FromClientThread(socket, server, this);
-		this.toClientThread = new Thread(this.toClient);
-		this.fromClientThread = new Thread(this.fromClient);
-		this.toClientThread.start();
-		this.fromClientThread.start();
+        Thread clientInThread = new Thread(toClient);
+        Thread clientOutThread = new Thread(fromClient);
+        clientInThread.start();
+        clientOutThread.start();
 	}
 	
 	public void queuePacket(Packet packet) {
@@ -43,15 +41,12 @@ public final class Connection {
 	 * @throws IOException If the socket cannot be closed.
 	 */
 	public void destroy() throws IOException {
-		this.server.destroyConnection(this);
-		
-		this.toClientThread.interrupt();
-		this.fromClientThread.interrupt();
+		this.toClient.cancel();
+		this.fromClient.cancel();
 		this.toClient = null;
 		this.fromClient = null;
-		this.toClientThread = null;
-		this.fromClientThread = null;
 		this.socket.close();
+		this.server.destroyConnection(this);
 	}
 
 }
