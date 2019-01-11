@@ -16,7 +16,8 @@ import com.ryanafzal.io.chat.core.resources.sendable.PacketData;
 import com.ryanafzal.io.chat.core.resources.thread.ServerThread;
 import com.ryanafzal.io.chat.core.resources.user.User;
 import com.ryanafzal.io.chat.core.resources.user.UserNotFoundException;
-import com.ryanafzal.io.chat.core.resources.user.groups.Group;
+import com.ryanafzal.io.chat.core.resources.user.groups.BaseGroup;
+import com.ryanafzal.io.chat.core.resources.user.groups.GlobalServerGroup;
 import com.ryanafzal.io.chat.core.resources.user.permission.Level;
 
 public class Server extends ApplicationWindow {
@@ -33,7 +34,7 @@ public class Server extends ApplicationWindow {
 	private HashMap<Long, Connection> connections;
 	
 	private HashMap<Long, User> users;
-	private HashMap<Long, Group> groups;
+	private HashMap<Long, BaseGroup> groups;
 	
 	public Server() {
 		this.unmappedConnections = new HashSet<Connection>();
@@ -50,7 +51,7 @@ public class Server extends ApplicationWindow {
 		this.startServer();
 	}
 	
-	public Group getGroupByID(int ID) {
+	public BaseGroup getGroupByID(int ID) {
 		return this.groups.get(ID);
 	}
 	
@@ -68,9 +69,9 @@ public class Server extends ApplicationWindow {
 	
 	private void initData() {
 		this.users = new HashMap<Long, User>();
-		this.groups = new HashMap<Long, Group>();
+		this.groups = new HashMap<Long, BaseGroup>();
 		
-		this.groups.put(Server.GLOBAL_GROUP_ID, new Group(User.SERVER, "Global Chat", Server.GLOBAL_GROUP_ID));
+		this.groups.put(Server.GLOBAL_GROUP_ID, new GlobalServerGroup());
 		
 		//TODO ADD OVERRIDES HERE
 		
@@ -138,7 +139,7 @@ public class Server extends ApplicationWindow {
 	public void distributePacket(Packet packet) {
 		long address = packet.getPacketData().ADDRESS;
 		if (packet.getPacketData().ADDRESSTYPE == PacketData.AddressType.GROUP) {
-			Group g = this.groups.get(address);
+			BaseGroup g = this.groups.get(address);
 			HashSet<Connection> connections = new HashSet<Connection>();
 			
 			for (Long l : g.getUsersAtRank(packet.getPacketData().LEVEL)) {
