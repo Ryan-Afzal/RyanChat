@@ -49,7 +49,7 @@ public class FromClientThread extends Task<Void> {
 							}
 						}
 					} else {
-						this.server.distributePacket(input);
+						this.server.enqueuePacket(input);
 					}
 
 				} catch (ClassNotFoundException e) {

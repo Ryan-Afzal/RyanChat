@@ -1,18 +1,20 @@
 package com.ryanafzal.io.chat.core.server;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.UUID;
 
 import com.ryanafzal.io.chat.core.resources.application.ApplicationWindow;
+import com.ryanafzal.io.chat.core.resources.misc.Slow;
 import com.ryanafzal.io.chat.core.resources.sendable.Packet;
-import com.ryanafzal.io.chat.core.resources.sendable.PacketData;
+import com.ryanafzal.io.chat.core.resources.thread.PacketDistributionThread;
 import com.ryanafzal.io.chat.core.resources.thread.ServerThread;
 import com.ryanafzal.io.chat.core.resources.user.User;
 import com.ryanafzal.io.chat.core.resources.user.UserNotFoundException;
@@ -27,18 +29,28 @@ public class Server extends ApplicationWindow {
 	public static final long GLOBAL_GROUP_ID = 0;
 	public static final String CONFIGPATH = "data\\config.txt";
 	
+	private HashMap<String, File> propertyFiles;//TODO Config Files
+	
 	protected String serverHost;
 	private ServerSocket serverSocket;
+	
+	private ServerThread acceptClientsThread;
+	private PacketDistributionThread packetDistributionThread;
+	
+	private LinkedList<Packet> packetQueue;
 	
 	private HashSet<Connection> unmappedConnections;
 	private HashMap<Long, Connection> connections;
 	
 	private HashMap<Long, User> users;
 	private HashMap<Long, BaseGroup> groups;
-	
+
+	@Slow
 	public Server() {
 		this.unmappedConnections = new HashSet<Connection>();
 		this.connections = new HashMap<Long, Connection>();
+		
+		this.packetQueue = new LinkedList<Packet>();
 		
 		try	{
 			this.serverHost = InetAddress.getLocalHost().getHostAddress();
@@ -51,8 +63,8 @@ public class Server extends ApplicationWindow {
 		this.startServer();
 	}
 	
-	public BaseGroup getGroupByID(int ID) {
-		return this.groups.get(ID);
+	public BaseGroup getGroupByID(long address) {
+		return this.groups.get(address);
 	}
 	
 	public User getUserByID(long ID) {
@@ -70,13 +82,13 @@ public class Server extends ApplicationWindow {
 	private void initData() {
 		this.users = new HashMap<Long, User>();
 		this.groups = new HashMap<Long, BaseGroup>();
-		
 		this.groups.put(Server.GLOBAL_GROUP_ID, new GlobalServerGroup());
 		
 		//TODO ADD OVERRIDES HERE
 		
 	}
-	
+
+	@Slow
 	private void startServer() {
 		serverSocket = null;
 
@@ -91,11 +103,20 @@ public class Server extends ApplicationWindow {
 			this.outputErrorMessage("COULD NOT LISTEN ON PORT: " + PORT);
 		}
 	}
-
+	
+	/**
+	 * Starts two threads:
+	 * 1. The {@code ServerThread}, which accepts clients and creates connections.
+	 * 2. The {@code PacketDistributionThread}, which distributes packets to clients.
+	 */
 	private void acceptClients() {
-		ServerThread thread = new ServerThread(this, this.serverSocket);
-		Thread serverThread = new Thread(thread);
+		this.acceptClientsThread = new ServerThread(this, this.serverSocket);
+		Thread serverThread = new Thread(this.acceptClientsThread);
 		serverThread.start();
+		
+		this.packetDistributionThread = new PacketDistributionThread(this);
+		Thread pdThread = new Thread(this.packetDistributionThread);
+		pdThread.start();
 	}
 
 	@Override
@@ -111,14 +132,23 @@ public class Server extends ApplicationWindow {
 	@Override
 	public void onClose() {
 		try {
+			this.acceptClientsThread.cancel();
 			this.serverSocket.close();
+			
+			for (Connection c : this.unmappedConnections) {
+				c.destroy();
+			}
+			
+			for (Connection c : this.connections.values()) {
+				c.destroy();
+			}
+			
 			System.exit(0);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 	
-
 	@Override
 	public Level getPermissionRank() {
 		return Level.SERVER;
@@ -128,38 +158,6 @@ public class Server extends ApplicationWindow {
 		Server.launch(args);
 	}
 	
-	/*
-	 * //TODO Issue here:
-	 * 
-	 * Connection that is being passed is null.
-	 * 
-	 * Reason: The 'owner' is the Server, which is a legitimate user.
-	 * However, its USERID does not correspond to a Connection
-	 */
-	public void distributePacket(Packet packet) {
-		long address = packet.getPacketData().ADDRESS;
-		if (packet.getPacketData().ADDRESSTYPE == PacketData.AddressType.GROUP) {
-			BaseGroup g = this.groups.get(address);
-			HashSet<Connection> connections = new HashSet<Connection>();
-			
-			for (Long l : g.getUsersAtRank(packet.getPacketData().LEVEL)) {
-				connections.add(this.connections.get(l));
-			}
-			
-			this.distributePacket(packet, connections);
-		} else if (packet.getPacketData().ADDRESSTYPE == PacketData.AddressType.INDIVIDUAL) {
-			ArrayList<Connection> connections = new ArrayList<Connection>();
-			connections.add(this.connections.get(address));
-			this.distributePacket(packet, connections);
-		}
-	}
-	
-	private void distributePacket(Packet packet, Iterable<Connection> recipients) {
-		for (Connection c : recipients) {
-			c.queuePacket(packet);
-		}
-	}
-	
 	public void addConnection(Socket socket) {
 		this.addConnection(this.createConnection(socket));
 	}
@@ -167,7 +165,8 @@ public class Server extends ApplicationWindow {
 	public void addConnection(Connection connection) {
 		this.unmappedConnections.add(connection);
 	}
-	
+
+	@Slow
 	public void destroyConnection(Socket socket) {
 		Connection con = this.unmappedConnections
 		.stream()
@@ -205,6 +204,7 @@ public class Server extends ApplicationWindow {
 		return new Connection(this, socket);
 	}
 
+	@Slow
 	public User login(String username, int password, boolean register) throws UserNotFoundException {
 		User found = this.users
 				.values()
@@ -229,6 +229,22 @@ public class Server extends ApplicationWindow {
 				throw new UserNotFoundException("Incorrect Password.");
 			}
 		}
+	}
+	
+	public void enqueuePacket(Packet packet) {
+		this.packetQueue.addFirst(packet);
+	}
+	
+	public Packet dequeuePacket() {
+		return this.packetQueue.removeLast();
+	}
+	
+	public boolean arePacketsQueued() {
+		return !this.packetQueue.isEmpty();
+	}
+
+	public Connection getConnectionByUserID(long l) {
+		return this.connections.get(l);
 	}
 
 }

@@ -1,5 +1,5 @@
-PORT=444
+PORT=440
 LOGPATH=log.txt
 BANPATH=bans.txt
-MUTEPATH=mutes.txt
 USERPATH=users.txt
+GROUPPATH=groups.txt
