@@ -27,7 +27,7 @@ public class LoginCommand implements RunnableCommand {
 	public void run(Object input) {
 		Connection connection = (Connection) input;
 		
-		PacketData data = new PacketData(User.SERVER.getID(), 0, Level.USER);
+		PacketData data = new PacketData(User.SERVER.getID(), PacketData.AddressType.SERVER, 0, Level.USER);
 		
 		PacketCommand contents;
 		User u;

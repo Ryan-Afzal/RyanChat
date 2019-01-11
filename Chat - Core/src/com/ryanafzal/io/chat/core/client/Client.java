@@ -145,8 +145,8 @@ public class Client extends ApplicationWindow {
 			args.remove(0);
 			this.registry.runCommand(input.substring(1), args, this.user.getPermissionLevel());
 			
-		} else {//TODO Change the User.SERVER.getID() and Level.USER to the complex system.
-			PacketData data = new PacketData(this.user.getID(), User.SERVER.getID(), Level.USER);
+		} else {//TODO Change the PacketData.AddressType.GLOBAL to the complex address system.
+			PacketData data = new PacketData(this.user.getID(), PacketData.AddressType.GLOBAL, User.SERVER.getID(), this.user.getPermissionLevel());
 			Packet packet = new Packet(new PacketMessage(this.user.getName(), input), data);
 			this.toServer.addPacket(packet);
 		}
@@ -184,14 +184,14 @@ public class Client extends ApplicationWindow {
 	}
 	
 	private void connect(String username, String password) {
-		PacketData data = new PacketData(0, User.SERVER.getID(), Level.SERVER);
+		PacketData data = new PacketData(0, PacketData.AddressType.SERVER, User.SERVER.getID(), Level.SERVER);
 		PacketContents contents = new PacketCommand(new LoginCommand(username, password.hashCode(), this.register));
 		Packet packet = new Packet(contents, data);
 		this.toServer.addPacket(packet);
 	}
 	
 	private void disconnect() {
-		PacketData data = new PacketData(this.user.getID(), User.SERVER.getID(), Level.SERVER);
+		PacketData data = new PacketData(this.user.getID(),PacketData.AddressType.SERVER, User.SERVER.getID(), Level.SERVER);
 		PacketContents contents = new PacketCommand(new DisconnectCommand());
 		Packet packet = new Packet(contents, data);
 		this.toServer.addPacket(packet);

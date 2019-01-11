@@ -13,6 +13,7 @@ public class PacketData implements Serializable {
 	public final String ID;
 	public final LocalDateTime TIMESTAMP;
 	public final long SENDERID;
+	public final AddressType ADDRESSTYPE;
 	public final long ADDRESS;
 	public final Level LEVEL;
 	
@@ -22,12 +23,17 @@ public class PacketData implements Serializable {
 	 * @param address The ID of the recipient. This can be either a User ID, the Server ID, or a Group ID.
 	 * @param level The required permission level in order to recieve the packet.
 	 */
-	public PacketData(long senderid, long address, Level level) {
+	public PacketData(long senderid, AddressType addresstype, long address, Level level) {
 		this.ID = UUID.randomUUID().toString();
 		this.TIMESTAMP = LocalDateTime.now();
 		this.SENDERID = senderid;
+		this.ADDRESSTYPE = addresstype;
 		this.ADDRESS = address;
 		this.LEVEL = level;
+	}
+	
+	public enum AddressType {
+		GLOBAL, SERVER, GROUP, INDIVIDUAL
 	}
 	
 }

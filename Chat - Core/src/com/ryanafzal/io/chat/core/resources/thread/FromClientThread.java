@@ -11,6 +11,7 @@ import com.ryanafzal.io.chat.core.resources.command.RunnableCommand;
 import com.ryanafzal.io.chat.core.resources.sendable.Packet;
 import com.ryanafzal.io.chat.core.resources.sendable.PacketCommand;
 import com.ryanafzal.io.chat.core.resources.sendable.PacketContents;
+import com.ryanafzal.io.chat.core.resources.sendable.PacketData;
 import com.ryanafzal.io.chat.core.resources.user.permission.Level;
 
 public class FromClientThread implements Runnable {
@@ -33,7 +34,7 @@ public class FromClientThread implements Runnable {
 				try {
 					Packet input = (Packet) fromServerThread.readObject();
 					
-					if (input.getPacketData().LEVEL == Level.SERVER) {
+					if (input.getPacketData().ADDRESSTYPE == PacketData.AddressType.SERVER) {
 						PacketContents contents = input.getPacketContents();
 						if (contents instanceof PacketCommand) {
 							PacketCommand cmd = (PacketCommand) contents;

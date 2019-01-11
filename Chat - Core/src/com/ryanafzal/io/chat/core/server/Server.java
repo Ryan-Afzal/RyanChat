@@ -12,6 +12,7 @@ import java.util.UUID;
 
 import com.ryanafzal.io.chat.core.resources.application.ApplicationWindow;
 import com.ryanafzal.io.chat.core.resources.sendable.Packet;
+import com.ryanafzal.io.chat.core.resources.sendable.PacketData;
 import com.ryanafzal.io.chat.core.resources.thread.ServerThread;
 import com.ryanafzal.io.chat.core.resources.user.User;
 import com.ryanafzal.io.chat.core.resources.user.UserNotFoundException;
@@ -129,14 +130,17 @@ public class Server extends ApplicationWindow {
 	
 	public void distributePacket(Packet packet) {
 		long address = packet.getPacketData().ADDRESS;
+		/*if (packet.getPacketData().ADDRESSTYPE == PacketData.AddressType.GLOBAL) {
+			
+		} else if (packet.getPacketData().ADDRESSTYPE == PacketData.AddressType.GROUP) {
+			
+		} else if (packet.getPacketData().ADDRESSTYPE == PacketData.AddressType.INDIVIDUAL) {
+			
+		}*/
+		
+		
 		if (address == this.mainServerGroup.GROUPID) {
-			HashSet<Connection> connections = new HashSet<Connection>();
 			
-			for (User u : this.users.values()) {
-				connections.add(this.connections.get(u.getID()));
-			}
-			
-			this.distributePacket(packet, connections);
 		} else {
 			for (Group g : this.groups.values()) {
 				if (address == g.GROUPID) {
