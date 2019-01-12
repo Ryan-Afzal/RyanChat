@@ -26,6 +26,12 @@ public class Group extends BaseGroup {
 	}
 	
 	@Override
+	public void addUser(User user, Level level) {
+		super.addUser(user, level);
+		this.chainOfCommand.add(user);
+	}
+	
+	@Override
 	public void removeUser(long ID) {
 		super.removeUser(ID);
 		

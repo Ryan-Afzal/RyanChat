@@ -137,7 +137,7 @@ public class Client extends ApplicationWindow {
 	
 	@Override
 	public String getTitle() {
-		return "RyanChat";
+		return "MorphineChat";
 	}
 	
 	@Override

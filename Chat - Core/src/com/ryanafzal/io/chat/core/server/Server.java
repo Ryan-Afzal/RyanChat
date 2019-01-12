@@ -1,6 +1,5 @@
 package com.ryanafzal.io.chat.core.server;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
@@ -9,7 +8,6 @@ import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.UUID;
 
 import com.ryanafzal.io.chat.core.resources.application.ApplicationWindow;
 import com.ryanafzal.io.chat.core.resources.misc.Slow;
@@ -29,8 +27,6 @@ public class Server extends ApplicationWindow {
 	public static final long GLOBAL_GROUP_ID = 0;
 	public static final String CONFIGPATH = "data\\config.txt";
 	
-	private HashMap<String, File> propertyFiles;//TODO Config Files
-	
 	protected String serverHost;
 	private ServerSocket serverSocket;
 	
@@ -40,10 +36,10 @@ public class Server extends ApplicationWindow {
 	private LinkedList<Packet> packetQueue;
 	
 	private HashSet<Connection> unmappedConnections;
-	private HashMap<Long, Connection> connections;
+	private HashMap<Long, Connection> connections;//UserID -> Connection to User
 	
-	private HashMap<Long, User> users;
-	private HashMap<Long, BaseGroup> groups;
+	private HashMap<Long, User> users;//UserID -> User
+	private HashMap<Long, BaseGroup> groups;//GroupID -> Group
 
 	@Slow
 	public Server() {
@@ -121,7 +117,7 @@ public class Server extends ApplicationWindow {
 
 	@Override
 	public String getTitle() {
-		return "RyanChat Server";
+		return "MorphineChat Server";
 	}
 
 	@Override
@@ -215,12 +211,12 @@ public class Server extends ApplicationWindow {
 		
 		if (found == null) {
 			if (register) {
-				User output = new User(username, password, UUID.randomUUID().hashCode());
+				User output = new User(username, password, new Object().hashCode());
 				this.addUser(output);
 				this.groups.get(Server.GLOBAL_GROUP_ID).addUser(output);
 				return output;
 			} else {
-				throw new UserNotFoundException("User with username " + username + " and password hashcode " + password + " does not exist.");
+				throw new UserNotFoundException("User " + username + " does not exist.");
 			}
 		} else {
 			if (found.getPassword() == password) {
@@ -243,7 +239,7 @@ public class Server extends ApplicationWindow {
 		return !this.packetQueue.isEmpty();
 	}
 
-	public Connection getConnectionByUserID(long l) {
+	public Connection getConnectionByUserID(long l) {//O(1)
 		return this.connections.get(l);
 	}
 
