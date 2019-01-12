@@ -9,7 +9,7 @@ public class ServerGUI extends ApplicationWindow {
 	private Server server;
 	
 	public ServerGUI() {
-		// TODO Auto-generated constructor stub
+		this.server = new Server(this);
 	}
 
 	@Speed("1")
