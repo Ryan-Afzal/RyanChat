@@ -11,6 +11,7 @@ import java.util.LinkedList;
 
 import com.ryanafzal.io.chat.core.resources.application.ApplicationWindow;
 import com.ryanafzal.io.chat.core.resources.misc.Slow;
+import com.ryanafzal.io.chat.core.resources.misc.Speed;
 import com.ryanafzal.io.chat.core.resources.sendable.Packet;
 import com.ryanafzal.io.chat.core.resources.thread.PacketDistributionThread;
 import com.ryanafzal.io.chat.core.resources.thread.ServerThread;
@@ -20,12 +21,14 @@ import com.ryanafzal.io.chat.core.resources.user.groups.BaseGroup;
 import com.ryanafzal.io.chat.core.resources.user.groups.GlobalServerGroup;
 import com.ryanafzal.io.chat.core.resources.user.permission.Level;
 
-public class Server extends ApplicationWindow {
+public class Server {
 	
 	public int PORT = 440;
 	
 	public static final long GLOBAL_GROUP_ID = 0;
 	public static final String CONFIGPATH = "data\\config.txt";
+	
+	private final ServerGUI parent;
 	
 	protected String serverHost;
 	private ServerSocket serverSocket;
@@ -42,7 +45,10 @@ public class Server extends ApplicationWindow {
 	private HashMap<Long, BaseGroup> groups;//GroupID -> Group
 
 	@Slow
-	public Server() {
+	@Speed("")
+	public Server(ServerGUI parent) {
+		this.parent = parent;
+		
 		this.unmappedConnections = new HashSet<Connection>();
 		this.connections = new HashMap<Long, Connection>();
 		
@@ -59,22 +65,27 @@ public class Server extends ApplicationWindow {
 		this.startServer();
 	}
 	
+	@Speed("1")
 	public BaseGroup getGroupByID(long address) {
 		return this.groups.get(address);
 	}
 	
+	@Speed("1")
 	public User getUserByID(long ID) {
 		return this.users.get(ID);
 	}
 	
+	@Speed("1")
 	public void addUser(User user) {
 		this.users.put(user.getID(), user);
 	}
 	
+	@Speed("1")
 	public void removeUser(User user) {
 		this.users.remove(user.getID());
 	}
 	
+	@Speed("1")
 	private void initData() {
 		this.users = new HashMap<Long, User>();
 		this.groups = new HashMap<Long, BaseGroup>();
@@ -84,19 +95,19 @@ public class Server extends ApplicationWindow {
 		
 	}
 
-	@Slow
+	@Speed("1")
 	private void startServer() {
 		serverSocket = null;
 
 		try {
 			InetAddress addr = InetAddress.getByName(this.serverHost);
 			serverSocket = new ServerSocket(PORT, 50, addr);
-			this.outputCommandMessage("SERVER STARTING ON PORT: " + this.serverSocket.getLocalSocketAddress());
+			this.parent.outputCommandMessage("SERVER STARTING ON PORT: " + this.serverSocket.getLocalSocketAddress());
 			
 			this.acceptClients();
 		} catch (IOException e) {
 			e.printStackTrace();
-			this.outputErrorMessage("COULD NOT LISTEN ON PORT: " + PORT);
+			this.parent.outputErrorMessage("COULD NOT LISTEN ON PORT: " + PORT);
 		}
 	}
 	
@@ -105,6 +116,7 @@ public class Server extends ApplicationWindow {
 	 * 1. The {@code ServerThread}, which accepts clients and creates connections.
 	 * 2. The {@code PacketDistributionThread}, which distributes packets to clients.
 	 */
+	@Speed("1")
 	private void acceptClients() {
 		this.acceptClientsThread = new ServerThread(this, this.serverSocket);
 		Thread serverThread = new Thread(this.acceptClientsThread);
@@ -114,21 +126,11 @@ public class Server extends ApplicationWindow {
 		Thread pdThread = new Thread(this.packetDistributionThread);
 		pdThread.start();
 	}
-
-	@Override
-	public String getTitle() {
-		return "MorphineChat Server";
-	}
-
-	@Override
-	public void process(String input) {
-		// TODO Auto-generated method stub
-	}
-
-	@Override
+	
 	public void onClose() {
 		try {
 			this.acceptClientsThread.cancel();
+			this.packetDistributionThread.cancel();
 			this.serverSocket.close();
 			
 			for (Connection c : this.unmappedConnections) {
@@ -145,24 +147,18 @@ public class Server extends ApplicationWindow {
 		}
 	}
 	
-	@Override
-	public Level getPermissionRank() {
-		return Level.SERVER;
-	}
-	
-	public static void main(String[] args) {
-		Server.launch(args);
-	}
-	
+	@Speed("1")
 	public void addConnection(Socket socket) {
 		this.addConnection(this.createConnection(socket));
 	}
 	
+	@Speed("1")
 	public void addConnection(Connection connection) {
 		this.unmappedConnections.add(connection);
 	}
 
 	@Slow
+	@Speed("n")
 	public void destroyConnection(Socket socket) {
 		Connection con = this.unmappedConnections
 		.stream()
@@ -182,25 +178,30 @@ public class Server extends ApplicationWindow {
 		}
 	}
 	
+	@Speed("1")
 	public void destroyConnection(Connection connection) {
 		this.connections.remove(connection);
 	}
 	
+	@Speed("1")
 	public void inductConnection(long ID, Connection connection) {
 		this.unmappedConnections.remove(connection);
 		this.connections.put(ID, connection);
 	}
 	
+	@Speed("1")
 	public void deductConnection(long ID) {
 		this.unmappedConnections.add(this.connections.get(ID));
 		this.connections.remove(ID);
 	}
 	
+	@Speed("1")
 	private Connection createConnection(Socket socket) {
 		return new Connection(this, socket);
 	}
 
 	@Slow
+	@Speed("n")
 	public User login(String username, int password, boolean register) throws UserNotFoundException {
 		User found = this.users
 				.values()
@@ -227,20 +228,34 @@ public class Server extends ApplicationWindow {
 		}
 	}
 	
+	@Speed("1")
 	public void enqueuePacket(Packet packet) {
 		this.packetQueue.addFirst(packet);
 	}
 	
+	@Speed("1")
 	public Packet dequeuePacket() {
 		return this.packetQueue.removeLast();
 	}
 	
+	@Speed("1")
 	public boolean arePacketsQueued() {
 		return !this.packetQueue.isEmpty();
 	}
-
-	public Connection getConnectionByUserID(long l) {//O(1)
+	
+	@Speed("1")
+	public Connection getConnectionByUserID(long l) {
 		return this.connections.get(l);
+	}
+	
+	@Speed("1")
+	public boolean isRunning() {
+		return this.parent.isRunning();
+	}
+	
+	@Speed("1")
+	public ServerGUI getParent() {
+		return this.parent;
 	}
 
 }

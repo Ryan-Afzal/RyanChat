@@ -9,6 +9,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.LinkedList;
 
+import com.ryanafzal.io.chat.core.resources.misc.Speed;
 import com.ryanafzal.io.chat.core.server.Server;
 
 import javafx.concurrent.Task;
@@ -26,7 +27,7 @@ public abstract class FileThread extends Task<Void> {
 	private LinkedList<String> out;
 	private LinkedList<String> in;
 	
-	//TODO
+	@Speed("n")
 	public FileThread(Server server, String filename) throws IOException, FileNotFoundException {
 		this.file = new File(filename);
 		this.file.createNewFile();
@@ -39,13 +40,19 @@ public abstract class FileThread extends Task<Void> {
 		
 		this.out = new LinkedList<String>();
 		this.in = new LinkedList<String>();
+		
+		String line = this.reader.readLine();
+		while (line != null) {
+			this.out.addFirst(line);
+			line = this.reader.readLine();
+		}
 	}
 
 	@Override
 	protected Void call() throws Exception {
 		while (!this.isCancelled()) {
 			if (!this.in.isEmpty()) {
-				//TODO
+				this.writeLine();
 			}
 		}
 		
@@ -68,10 +75,6 @@ public abstract class FileThread extends Task<Void> {
 	
 	public void push(String string) {
 		this.in.addFirst(string);
-	}
-	
-	private void readLine() throws IOException {
-		this.out.addFirst(this.reader.readLine());
 	}
 	
 	private void writeLine() throws IOException {

@@ -35,10 +35,10 @@ public class ServerThread extends Task<Void> {
 				this.server.addConnection(socket);
 				
 				//Output a status message
-				this.server.outputCommandMessage("ACCEPTED CLIENT AT: " + socket.getRemoteSocketAddress());
+				this.server.getParent().outputCommandMessage("ACCEPTED CLIENT AT: " + socket.getRemoteSocketAddress());
 			} catch (IOException ex) {
 				ex.printStackTrace();
-				this.server.outputErrorMessage("ACCEPT FAILED ON PORT: " + this.server.PORT);
+				this.server.getParent().outputErrorMessage("ACCEPT FAILED ON PORT: " + this.server.PORT);
 			}
 		}
 		
