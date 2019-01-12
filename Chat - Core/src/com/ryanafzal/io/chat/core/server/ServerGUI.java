@@ -21,7 +21,7 @@ public class ServerGUI extends ApplicationWindow {
 	@Speed("1")
 	@Override
 	public void process(String input) {
-		// TODO Auto-generated method stub
+		//TODO
 	}
 	
 	@Speed("n")

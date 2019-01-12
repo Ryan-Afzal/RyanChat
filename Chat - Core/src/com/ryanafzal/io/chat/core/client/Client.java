@@ -183,7 +183,7 @@ public class Client extends ApplicationWindow {
 		    }
 		};
 		
-		task.run();
+		new Thread(task).start();
 	}
 	
 	private void connect(String username, String password) {
@@ -208,6 +208,9 @@ public class Client extends ApplicationWindow {
 	public void onClose() {
 		this.disconnect();
 		this.isRunning = false;
+		
+		this.toServer.cancel();
+		this.fromServer.cancel();
 		
 		try {
 			this.socket.close();
