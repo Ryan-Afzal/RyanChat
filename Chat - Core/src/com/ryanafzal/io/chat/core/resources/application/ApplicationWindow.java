@@ -36,7 +36,7 @@ public abstract class ApplicationWindow extends Application {
 	protected boolean isRunning;
 	private boolean isReady = false;
 	
-	protected final CommandRegistry registry;
+	public final CommandRegistry registry;
 	
 	public ApplicationWindow() {
 		this.isRunning = true;
@@ -91,11 +91,12 @@ public abstract class ApplicationWindow extends Application {
 	
 	@Override
 	public void stop() {
+		this.isRunning = false;
 		this.onClose();
 	}
 	
 	public void outputAlert(String message) {
-		
+		//TODO
 	}
 	
 	/**

@@ -26,7 +26,7 @@ public class ServerThread extends Task<Void> {
 
 	@Override
 	public Void call() {
-		while (this.server.isRunning() && !this.isCancelled()) {
+		while (this.server.isRunning() && this.server.isRunning() && !this.isCancelled()) {
 			try {
 				//Accept a connection
 				Socket socket = this.serverSocket.accept();

@@ -33,7 +33,7 @@ public class FromServerThread extends Task<Void> {
 					Packet input = (Packet) fromServerThread.readObject();
 					PacketContents contents = input.getPacketContents();
 					if (contents instanceof PacketMessage) {
-						this.client.outputPacketMessage((PacketMessage) contents, input.getPacketData());
+						this.client.getParent().outputPacketMessage((PacketMessage) contents, input.getPacketData());
 					} else if (contents instanceof PacketCommand) {
 						PacketCommand cmd = (PacketCommand) contents;
 						

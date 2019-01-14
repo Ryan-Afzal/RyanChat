@@ -15,7 +15,7 @@ public class ListCommand extends Command {
 	}
 
 	@Override
-	public void run(Iterable<?> args) {
+	public void run(CommandInfo info, Iterable<?> args) {
 		this.registry.app.getPermissionRank();
 		this.registry.app.outputCommandMessage("Commands available at rank: " + level);
 		for (Command c : this.registry.getCommandsAtRank(level)) {

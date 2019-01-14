@@ -30,7 +30,7 @@ public class CommandRegistry {
 				.collect(Collectors.toList());
 	}
 	
-	public void runCommand(String name, Iterable<?> args, Level level) {
+	public void runCommand(String name, CommandInfo info, Iterable<?> args, Level level) {
 		Command c = this.getCommandsAtRank(level)
 				.stream()
 				.filter(command -> Arrays.asList(command.aliases).contains(name))
@@ -39,7 +39,7 @@ public class CommandRegistry {
 		if (c == null) {
 			throw new IllegalArgumentException("Command " + name + " does not exist or is inaccessible.");
 		} else {
-			c.run(args);
+			c.run(info, args);
 		}
 	}
 

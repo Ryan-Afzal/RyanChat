@@ -19,6 +19,6 @@ public abstract class Command {
 		this.level = level;
 	}
 	
-	public abstract void run(Iterable<?> args);
+	public abstract void run(CommandInfo info, Iterable<?> args);
 
 }

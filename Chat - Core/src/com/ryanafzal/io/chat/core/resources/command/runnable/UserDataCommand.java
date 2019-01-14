@@ -23,7 +23,7 @@ public class UserDataCommand implements RunnableCommand {
 		client.setUser(USER);
 		
 		if (bool) {
-			client.setReady(true);
+			client.getParent().setReady(true);
 			client.refreshUserDataPane();
 			client.printWelcomeMessage();
 		}
