@@ -23,24 +23,10 @@ import com.ryanafzal.io.chat.core.resources.thread.ToServerThread;
 import com.ryanafzal.io.chat.core.resources.user.User;
 import com.ryanafzal.io.chat.core.resources.user.permission.Level;
 import com.ryanafzal.io.chat.core.server.Server;
-import com.ryanafzal.io.chat.core.server.ServerGUI;
 
-import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.geometry.Insets;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.Separator;
-import javafx.scene.control.TextField;
 import javafx.scene.control.Toggle;
-import javafx.scene.control.ToggleButton;
-import javafx.scene.control.ToggleGroup;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.VBox;
 
 public class Client {
 	
@@ -66,12 +52,13 @@ public class Client {
 	
 	public void process(String input) {
 		if (input.charAt(0) == Command.COMMAND_CHARACTER) {
-			List<?> args = new ArrayList<Object>(Arrays.asList(input.split(" ")));
-			args.remove(0);
+			List<String> args = new ArrayList<String>(Arrays.asList(input.split("-")));
+			String name = args.remove(0).substring(1);
+			args.forEach(s -> s.trim());
 			
 			CommandInfo info = new CommandInfo(this.user.getID(), this.getPermissionRank(), this.currentGroupID);
 			
-			this.parent.registry.runCommand(input.substring(1), info, args, this.getPermissionRank());
+			this.parent.registry.runCommand(name, info, args, this.getPermissionRank());
 			
 		} else {//TODO Change the PacketData.AddressType.GLOBAL to the complex address system.
 			PacketData data = new PacketData(this.user.getID(), PacketData.AddressType.GROUP, Server.GLOBAL_GROUP_ID, this.getPermissionRank());
@@ -185,6 +172,10 @@ public class Client {
 	@Speed("1")
 	public ClientGUI getParent() {
 		return this.parent;
+	}
+	
+	public void queuePacket(Packet packet) {
+		this.toServer.addPacket(packet);
 	}
 
 }

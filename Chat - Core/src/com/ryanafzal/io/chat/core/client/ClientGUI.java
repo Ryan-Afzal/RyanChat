@@ -1,6 +1,7 @@
 package com.ryanafzal.io.chat.core.client;
 
 import com.ryanafzal.io.chat.core.resources.application.ApplicationWindow;
+import com.ryanafzal.io.chat.core.resources.command.ChangeLevelCommand;
 import com.ryanafzal.io.chat.core.resources.user.permission.Level;
 
 import javafx.beans.value.ChangeListener;
@@ -21,7 +22,7 @@ import javafx.scene.layout.VBox;
 
 public class ClientGUI extends ApplicationWindow {
 	
-	private Client client;
+	public final Client client;
 	
 	//Login GUI
 	private Label usernameLabel;
@@ -33,13 +34,14 @@ public class ClientGUI extends ApplicationWindow {
 	private ToggleGroup registerGroup;
 	
 	private Separator separator;
-		
+	
 	//User Info
 	private Label userDataUsernameLabel;
 	private Label userDataPermissionLevelLabel;
 	
 	public ClientGUI() {
 		this.client = new Client(this);
+		new ChangeLevelCommand(this.registry);
 		
 		GridPane loginPane = new GridPane();
 	    loginPane.setHgap(10);

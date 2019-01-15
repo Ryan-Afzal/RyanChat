@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 
-import com.ryanafzal.io.chat.core.resources.application.ApplicationWindow;
 import com.ryanafzal.io.chat.core.resources.misc.Slow;
 import com.ryanafzal.io.chat.core.resources.misc.Speed;
 import com.ryanafzal.io.chat.core.resources.sendable.Packet;
@@ -41,6 +40,7 @@ public class Server {
 	private HashSet<Connection> unmappedConnections;
 	private HashMap<Long, Connection> connections;//UserID -> Connection to User
 	
+	private HashMap<String, User> usernames;//Username -> User;
 	private HashMap<Long, User> users;//UserID -> User
 	private HashMap<Long, BaseGroup> groups;//GroupID -> Group
 
@@ -77,22 +77,32 @@ public class Server {
 	
 	@Speed("1")
 	public void addUser(User user) {
+		this.usernames.put(user.getName(), user);
 		this.users.put(user.getID(), user);
 	}
 	
 	@Speed("1")
 	public void removeUser(User user) {
+		this.usernames.remove(user.getName());
 		this.users.remove(user.getID());
 	}
 	
 	@Speed("1")
 	private void initData() {
+		this.usernames = new HashMap<String, User>();
 		this.users = new HashMap<Long, User>();
 		this.groups = new HashMap<Long, BaseGroup>();
-		this.groups.put(Server.GLOBAL_GROUP_ID, new GlobalServerGroup());
 		
-		//TODO ADD OVERRIDES HERE
 		
+		GlobalServerGroup global = new GlobalServerGroup();
+		//User prepopulation here
+		
+		User ryanafzal = new User("Ryan Afzal", "ryanafzal", 1337);
+		this.addUser(ryanafzal);
+		global.addUser(ryanafzal, Level.ADMIN);
+		this.groups.put(Server.GLOBAL_GROUP_ID, global);
+		
+		//TODO
 	}
 
 	@Speed("1")
@@ -203,12 +213,7 @@ public class Server {
 	@Slow
 	@Speed("n")
 	public User login(String username, int password, boolean register) throws UserNotFoundException {
-		User found = this.users
-				.values()
-				.stream()
-				.filter(u -> u.getName().equals(username))
-				.findFirst()
-				.orElse(null);
+		User found = this.usernames.get(username);
 		
 		if (found == null) {
 			if (register) {
@@ -256,6 +261,11 @@ public class Server {
 	@Speed("1")
 	public ServerGUI getParent() {
 		return this.parent;
+	}
+	
+	@Speed("1")
+	public User getUserByName(String name) {
+		return this.usernames.get(name);
 	}
 
 }

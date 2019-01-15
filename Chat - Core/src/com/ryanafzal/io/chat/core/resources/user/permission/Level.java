@@ -5,6 +5,7 @@ import java.io.Serializable;
 import javafx.scene.paint.Color;
 
 public enum Level implements Serializable {
+	
 	/**
 	 * Accessible to all users of the system.
 	 */
@@ -49,6 +50,12 @@ public enum Level implements Serializable {
 	}
 	
 	public static Level getLevelFromString(String string) {
-		throw new UnsupportedOperationException();
+		for (Level l : Level.values()) {
+			if (l.getName().toLowerCase().equals(string.toLowerCase())) {
+				return l;
+			}
+		}
+		
+		throw new IllegalArgumentException("Level " + string + " does not exist");
 	}
 }
