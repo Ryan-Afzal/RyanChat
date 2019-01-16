@@ -61,7 +61,7 @@ public class Client {
 			this.parent.registry.runCommand(name, info, args, this.getPermissionRank());
 			
 		} else {//TODO Change the PacketData.AddressType.GLOBAL to the complex address system.
-			PacketData data = new PacketData(this.user.getID(), PacketData.AddressType.GROUP, Server.GLOBAL_GROUP_ID, this.getPermissionRank());
+			PacketData data = new PacketData(this.user.getID(), PacketData.AddressType.GROUP, Server.GLOBAL_GROUP_ID, Level.USER);
 			Packet packet = new Packet(new PacketMessage(this.user.getName(), input), data);
 			this.toServer.addPacket(packet);
 		}

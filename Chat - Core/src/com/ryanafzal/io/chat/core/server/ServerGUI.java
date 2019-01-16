@@ -15,7 +15,7 @@ public class ServerGUI extends ApplicationWindow {
 	@Speed("1")
 	@Override
 	public String getTitle() {
-		return "MorphineChat Server";
+		return "SpencerChat Server";
 	}
 	
 	@Speed("1")

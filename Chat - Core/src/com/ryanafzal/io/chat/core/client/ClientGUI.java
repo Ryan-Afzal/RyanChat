@@ -102,7 +102,7 @@ public class ClientGUI extends ApplicationWindow {
 	
 	@Override
 	public String getTitle() {
-		return "MorphineChat";
+		return "SpencerChat";
 	}
 
 	@Override
