@@ -74,7 +74,7 @@ public class Client {
 			@Override 
 		    protected Void call() throws Exception {
 		    	try {
-					IP = InetAddress.getByName("51S500036590");
+					IP = InetAddress.getByName("51S500036590.it.bsd405.org");
 					socket = new Socket(IP, PORT);
 					
 		            toServer = new ToServerThread(socket, c);
