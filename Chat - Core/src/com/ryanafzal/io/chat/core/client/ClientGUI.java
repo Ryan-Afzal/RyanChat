@@ -104,17 +104,17 @@ public class ClientGUI extends ApplicationWindow {
 	public String getTitle() {
 		return "SpencerChat";
 	}
-
+	
 	@Override
 	public void process(String input) {
 		this.client.process(input);
 	}
-
+	
 	@Override
 	public void onClose() {
 		this.client.onClose();
 	}
-
+	
 	@Override
 	public Level getPermissionRank() {
 		return this.client.getPermissionRank();

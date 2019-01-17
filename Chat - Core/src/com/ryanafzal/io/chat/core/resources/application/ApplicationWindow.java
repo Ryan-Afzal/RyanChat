@@ -19,8 +19,8 @@ import javafx.stage.Stage;
 
 public abstract class ApplicationWindow extends Application {
 	
-	public static final int WIDTH = 750;
-	public static final int HEIGHT = 600;
+	public static final int WIDTH = 850;
+	public static final int HEIGHT = 700;
 	
 	public static final String COMMAND_CARAT = ">>";
 	public static final Color COMMAND_COLOR = Color.BLUE;

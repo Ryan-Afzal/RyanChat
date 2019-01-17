@@ -67,7 +67,7 @@ public class Client {
 		}
 	}
 	
-	protected void login(String username, String password) {
+	protected void connect() {
 		final Client c = this;
 		
 		Task<Void> task = new Task<Void>() {
@@ -84,8 +84,6 @@ public class Client {
 		            Thread serverOutThread = new Thread(fromServer);
 		            serverInThread.start();
 		            serverOutThread.start();
-					
-		            connect(username, password);
 				} catch (UnknownHostException e) {
 					e.printStackTrace();
 				} catch (IOException e) {
@@ -99,7 +97,7 @@ public class Client {
 		new Thread(task).start();
 	}
 	
-	private void connect(String username, String password) {
+	public void login(String username, String password) {
 		PacketData data = new PacketData(0, PacketData.AddressType.SERVER, User.SERVER.getID(), Level.SERVER);
 		PacketContents contents = new PacketCommand(new LoginCommand(username, password.hashCode(), this.register));
 		Packet packet = new Packet(contents, data);
