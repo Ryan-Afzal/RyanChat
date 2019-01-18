@@ -42,12 +42,14 @@ public class Client {
 	private FromServerThread fromServer;
 	
 	private boolean register;
-	private int currentGroupID;
+	private long currentGroupID;
+	private Level currentVisibilityLevel;
 	
 	public Client(ClientGUI parent) {
 		super();
 		this.parent = parent;
 		this.register = false;
+		this.currentVisibilityLevel = Level.USER;
 	}
 	
 	public void process(String input) {
@@ -144,7 +146,7 @@ public class Client {
 	}
 	
 	public void refreshUserDataPane() {
-		//TODO DO Nothing
+		this.parent.refreshUserDataPane();
 	}
 	
 	/**
@@ -153,7 +155,7 @@ public class Client {
 	 * @param toggle
 	 * @param new_toggle
 	 */
-	protected void changed(ObservableValue<? extends Toggle> ov,
+	protected void changedRegisterToggle(ObservableValue<? extends Toggle> ov,
             Toggle toggle, Toggle new_toggle) {
                 if (new_toggle == null) {
                 	register = false;
@@ -161,6 +163,11 @@ public class Client {
                 	register = (Boolean) new_toggle.getUserData();
                 }
     }
+	
+	protected void changedLevelToggle(ObservableValue<? extends Toggle> ov,
+            Toggle toggle, Toggle new_toggle) {
+                currentVisibilityLevel = (Level) new_toggle.getUserData();
+	}
 	
 	@Speed("1")
 	public boolean isRunning() {
@@ -170,6 +177,10 @@ public class Client {
 	@Speed("1")
 	public ClientGUI getParent() {
 		return this.parent;
+	}
+	
+	public long getCurrentGroupID() {
+		return this.currentGroupID;
 	}
 	
 	public void queuePacket(Packet packet) {

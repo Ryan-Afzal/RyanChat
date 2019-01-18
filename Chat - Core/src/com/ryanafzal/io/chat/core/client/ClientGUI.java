@@ -2,6 +2,7 @@ package com.ryanafzal.io.chat.core.client;
 
 import com.ryanafzal.io.chat.core.resources.application.ApplicationWindow;
 import com.ryanafzal.io.chat.core.resources.command.ChangeLevelCommand;
+import com.ryanafzal.io.chat.core.resources.misc.RadioToggleButton;
 import com.ryanafzal.io.chat.core.resources.user.permission.Level;
 
 import javafx.beans.value.ChangeListener;
@@ -33,11 +34,13 @@ public class ClientGUI extends ApplicationWindow {
 	private ToggleButton registerButton;
 	private ToggleGroup registerGroup;
 	
-	private Separator separator;
-	
 	//User Info
 	private Label userDataUsernameLabel;
 	private Label userDataPermissionLevelLabel;
+	
+	//Message Info
+	private RadioToggleButton[] levelToggleButtons;
+	private ToggleGroup levelToggleGroup;
 	
 	public ClientGUI() {
 		this.client = new Client(this);
@@ -65,7 +68,7 @@ public class ClientGUI extends ApplicationWindow {
 		this.registerGroup.selectedToggleProperty().addListener(new ChangeListener<Toggle>(){
 		    public void changed(ObservableValue<? extends Toggle> ov,
 		            Toggle toggle, Toggle new_toggle) {
-		                client.changed(ov, toggle, new_toggle);
+		                client.changedRegisterToggle(ov, toggle, new_toggle);
 		             }
 		    });
 		
@@ -80,8 +83,6 @@ public class ClientGUI extends ApplicationWindow {
 		loginPane.add(this.loginButton, 0, 2);
 		loginPane.add(this.registerButton, 1, 2);
 		
-		this.separator = new Separator();
-		
 		GridPane userDataPane = new GridPane();
 		userDataPane.setHgap(10);
 		userDataPane.setVgap(10);
@@ -92,10 +93,38 @@ public class ClientGUI extends ApplicationWindow {
 		userDataPane.add(this.userDataUsernameLabel, 0, 0);
 		userDataPane.add(this.userDataPermissionLevelLabel, 0, 1);
 		
+		GridPane messageDataPane = new GridPane();
+		messageDataPane.setHgap(10);
+		messageDataPane.setVgap(10);
+		messageDataPane.setPadding(new Insets(0, 10, 0, 10));
+
+		this.levelToggleGroup = new ToggleGroup();
+		this.levelToggleGroup.selectedToggleProperty().addListener(new ChangeListener<Toggle>(){
+		    public void changed(ObservableValue<? extends Toggle> ov,
+		            Toggle toggle, Toggle new_toggle) {
+		                client.changedLevelToggle(ov, toggle, new_toggle);
+		             }
+		    });
+		
+		VBox levelToggles = new VBox();
+		this.levelToggleButtons = new RadioToggleButton[Level.values().length];
+		for (int i = 0; i < this.levelToggleButtons.length; i++) {
+			this.levelToggleButtons[i] = new RadioToggleButton(Level.values()[i].getName());
+			this.levelToggleButtons[i].setUserData(Level.values()[i]);
+			this.levelToggleButtons[i].setStyle("-fx-base: " + Level.values()[i].getColor().toString() + "");
+			this.levelToggleButtons[i].setToggleGroup(this.levelToggleGroup);
+			levelToggles.getChildren().add(this.levelToggleButtons[i]);
+		}
+		this.levelToggleButtons[0].fire();
+		
+		messageDataPane.add(levelToggles, 0, 0);
+		
 		VBox right = new VBox();
 		right.getChildren().add(loginPane);
-		right.getChildren().add(this.separator);
+		right.getChildren().add(new Separator());
 		right.getChildren().add(userDataPane);
+		right.getChildren().add(new Separator());
+		right.getChildren().add(messageDataPane);
 		
 		this.root.setRight(right);
 	}
@@ -122,6 +151,11 @@ public class ClientGUI extends ApplicationWindow {
 	
 	public static void main(String[] args) {
 		ClientGUI.launch(args);
+	}
+
+	protected void refreshUserDataPane() {
+		this.userDataUsernameLabel.setText(this.client.getUser().getName());
+		this.userDataPermissionLevelLabel.setText(this.client.getUser().getPermissionLevel(this.client.getCurrentGroupID()).getName().toUpperCase());
 	}
 
 }
