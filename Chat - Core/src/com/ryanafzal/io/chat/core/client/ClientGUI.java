@@ -111,13 +111,14 @@ public class ClientGUI extends ApplicationWindow {
 		for (int i = 0; i < this.levelToggleButtons.length; i++) {
 			this.levelToggleButtons[i] = new RadioToggleButton(Level.values()[i].getName());
 			this.levelToggleButtons[i].setUserData(Level.values()[i]);
-			this.levelToggleButtons[i].setStyle("-fx-base: " + Level.values()[i].getColor().toString() + "");
+			this.levelToggleButtons[i].setStyle("-fx-base: #" + Level.values()[i].getColor().toString().substring(2) + "");
 			this.levelToggleButtons[i].setToggleGroup(this.levelToggleGroup);
 			levelToggles.getChildren().add(this.levelToggleButtons[i]);
 		}
 		this.levelToggleButtons[0].fire();
-		
 		messageDataPane.add(levelToggles, 0, 0);
+		
+		
 		
 		VBox right = new VBox();
 		right.getChildren().add(loginPane);

@@ -6,7 +6,6 @@ import com.ryanafzal.io.chat.core.client.ClientGUI;
 import com.ryanafzal.io.chat.core.resources.command.runnable.ChangeUserPermissionLevelCommand;
 import com.ryanafzal.io.chat.core.resources.sendable.Packet;
 import com.ryanafzal.io.chat.core.resources.sendable.PacketCommand;
-import com.ryanafzal.io.chat.core.resources.sendable.PacketContents;
 import com.ryanafzal.io.chat.core.resources.sendable.PacketData;
 import com.ryanafzal.io.chat.core.resources.sendable.PacketData.AddressType;
 import com.ryanafzal.io.chat.core.resources.user.User;

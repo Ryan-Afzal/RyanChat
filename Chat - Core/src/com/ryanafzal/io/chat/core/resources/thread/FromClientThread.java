@@ -15,7 +15,6 @@ import com.ryanafzal.io.chat.core.resources.sendable.Packet;
 import com.ryanafzal.io.chat.core.resources.sendable.PacketCommand;
 import com.ryanafzal.io.chat.core.resources.sendable.PacketContents;
 import com.ryanafzal.io.chat.core.resources.sendable.PacketData;
-import com.ryanafzal.io.chat.core.resources.user.permission.Level;
 
 public class FromClientThread extends Task<Void> {
 

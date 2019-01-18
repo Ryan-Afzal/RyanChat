@@ -5,7 +5,7 @@ import com.ryanafzal.io.chat.core.resources.command.RunnableCommand;
 
 public class AlertCommand implements RunnableCommand {
 	
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = -2824804324473133917L;
 	
 	private final String USERNAME;
 	private final String MESSAGE;

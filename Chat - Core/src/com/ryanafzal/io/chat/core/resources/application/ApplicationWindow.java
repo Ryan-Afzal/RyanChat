@@ -139,7 +139,7 @@ public abstract class ApplicationWindow extends Application {
 				+ message.USERNAME
 				+ ": ";
 		
-		this.outputMessage(header + message.MESSAGE, data.LEVEL);
+		this.outputMessage(header + message.MESSAGE, message.LEVEL);
 	}
 	
 	public boolean isReady() {

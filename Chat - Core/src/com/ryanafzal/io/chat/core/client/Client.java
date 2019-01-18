@@ -50,6 +50,8 @@ public class Client {
 		this.parent = parent;
 		this.register = false;
 		this.currentVisibilityLevel = Level.USER;
+		
+		this.connect();
 	}
 	
 	public void process(String input) {
@@ -62,9 +64,13 @@ public class Client {
 			
 			this.parent.registry.runCommand(name, info, args, this.getPermissionRank());
 			
-		} else {//TODO Change the PacketData.AddressType.GLOBAL to the complex address system.
-			PacketData data = new PacketData(this.user.getID(), PacketData.AddressType.GROUP, Server.GLOBAL_GROUP_ID, Level.USER);
-			Packet packet = new Packet(new PacketMessage(this.user.getName(), input), data);
+		} else {
+			PacketData data = new PacketData(
+					this.user.getID(), 
+					PacketData.AddressType.GROUP, 
+					Server.GLOBAL_GROUP_ID, //TODO
+					this.currentVisibilityLevel);
+			Packet packet = new Packet(new PacketMessage(this.user.getName(), input, this.getPermissionRank()), data);
 			this.toServer.addPacket(packet);
 		}
 	}
