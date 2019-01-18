@@ -14,7 +14,7 @@ public class AlertCommand implements RunnableCommand {
 		this.USERNAME = username;
 		this.MESSAGE = message;
 	}
-
+	
 	@Override
 	public void run(Object input) {
 		Client client = (Client) input;

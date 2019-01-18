@@ -57,8 +57,10 @@ public class Client {
 	public void process(String input) {
 		if (input.charAt(0) == Command.COMMAND_CHARACTER) {
 			List<String> args = new ArrayList<String>(Arrays.asList(input.split("-")));
-			String name = args.remove(0).substring(1);
-			args.forEach(s -> s.trim());
+			String name = args.remove(0).trim().substring(1);
+			for (int i = 0; i < args.size(); i++) {
+				args.set(i, args.get(i).trim());
+			}
 			
 			CommandInfo info = new CommandInfo(this.user.getID(), this.getPermissionRank(), this.currentGroupID);
 			

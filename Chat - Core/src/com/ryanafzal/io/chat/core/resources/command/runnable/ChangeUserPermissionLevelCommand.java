@@ -28,10 +28,10 @@ public class ChangeUserPermissionLevelCommand implements RunnableCommand {
 		Server server = (Server) input;
 		User target = server.getUserByName(this.USERNAME);
 		
-		server.getGroupByID(this.TARGETGROUP).changePermission(target.getID(), this.NEWLEVEL);
+		server.changeGroupPermissions(this.TARGETGROUP, target.getID(), this.NEWLEVEL);
 		
 		PacketData data = new PacketData(User.SERVER.getID(), AddressType.INDIVIDUAL, target.getID(), Level.USER);
-		PacketCommand contents = new PacketCommand(new UpdateCachedUserCommand(target));
+		PacketCommand contents = new PacketCommand(new UpdateCachedGroupPermissionsCommand(this.TARGETGROUP, this.NEWLEVEL));
 		Packet packet = new Packet(contents, data);
 		
 		server.getConnectionByUserID(target.getID()).queuePacket(packet);

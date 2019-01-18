@@ -65,6 +65,15 @@ public class Server {
 		this.startServer();
 	}
 	
+	public void changeGroupPermissions(long group, long user, Level level) {
+		this.changeGroupPermissions(this.getGroupByID(group), this.getUserByID(user), level);
+	}
+	
+	public void changeGroupPermissions(BaseGroup group, User user, Level level) {
+		group.changePermission(user.getID(), level);
+		user.setPermissionLevel(group.GROUPID, level);
+	}
+	
 	@Speed("1")
 	public BaseGroup getGroupByID(long address) {
 		return this.groups.get(address);

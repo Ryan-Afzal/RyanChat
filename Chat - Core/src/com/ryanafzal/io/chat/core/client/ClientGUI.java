@@ -154,9 +154,10 @@ public class ClientGUI extends ApplicationWindow {
 		ClientGUI.launch(args);
 	}
 
+	//TODO IllegalStateException not on JavaFX Application Thread
 	protected void refreshUserDataPane() {
-		this.userDataUsernameLabel.setText(this.client.getUser().getName());
-		this.userDataPermissionLevelLabel.setText(this.client.getUser().getPermissionLevel(this.client.getCurrentGroupID()).getName().toUpperCase());
+		//this.userDataUsernameLabel.setText(this.client.getUser().getName());
+		//this.userDataPermissionLevelLabel.setText(this.client.getUser().getPermissionLevel(this.client.getCurrentGroupID()).getName().toUpperCase());
 	}
 
 }
