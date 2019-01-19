@@ -1,0 +1,8 @@
+{
+	"ipconfig" : { "port":440 },
+	
+	"groups"   : { "path":"/groups", "pattern":".xml" },
+	"bans"     : { "path":"/bans", "pattern":".txt" },
+	"ipbans"   : { "path":"/ipbans", "pattern":".txt" },
+	"users"    : { "path":"/users", "pattern":"" }
+}

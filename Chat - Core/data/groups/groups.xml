@@ -1,10 +1,10 @@
 <!DOCTYPE XML>
 <groups>
 	<group>
-		<name>Global</name>
+		<name>Ripdydx</name>
 		<id>1337</id>
 		<users>
-			
+			<user id="1337" level="admin"/>
 		</users>
 	</group>
 </groups>

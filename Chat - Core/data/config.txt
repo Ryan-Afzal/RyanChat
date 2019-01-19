@@ -1,5 +1,0 @@
-PORT=440
-LOGPATH=/logs
-BANPATH=/bans
-USERPATH=/users
-GROUPPATH=/groups
