@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<users>
+	<user userID="1337">
+		<username>Ryan Afzal</username>
+		<password>-329234516</password>
+		<groups>
+			<group groupID="0" level="Admin"/>
+			<group groupID="1337" level="Admin"/>
+		</groups>
+	</user>
+</users>

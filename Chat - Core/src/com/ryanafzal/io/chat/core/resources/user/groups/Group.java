@@ -47,6 +47,13 @@ public class Group extends BaseGroup {
 	}
 	
 	@Override
+	public void changePermission(long ID, Level rank) {
+		super.changePermission(ID, rank);
+		//TODO
+		
+	}
+	
+	@Override
 	protected void destroy() {
 		super.destroy();
 		this.chainOfCommand = null;
