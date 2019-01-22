@@ -6,6 +6,7 @@ import java.net.Socket;
 import com.ryanafzal.io.chat.core.resources.sendable.Packet;
 import com.ryanafzal.io.chat.core.resources.thread.FromClientThread;
 import com.ryanafzal.io.chat.core.resources.thread.ToClientThread;
+import com.ryanafzal.io.chat.core.resources.user.User;
 
 /**
  * Represents a connection from the server to a client.
@@ -19,6 +20,8 @@ public final class Connection {
 	protected final Socket socket;
 	protected ToClientThread toClient;
 	protected FromClientThread fromClient;
+	
+	private User user = null;
 	
 	public Connection(Server server, Socket socket) {
 		this.server = server;
@@ -47,6 +50,18 @@ public final class Connection {
 		this.fromClient = null;
 		this.socket.close();
 		this.server.destroyConnection(this);
+	}
+	
+	public void setUser(User user) {
+		this.user = user;
+	}
+	
+	public User getUser() {
+		return this.user;
+	}
+	
+	public void wipeUser() {
+		this.user = null;
 	}
 
 }

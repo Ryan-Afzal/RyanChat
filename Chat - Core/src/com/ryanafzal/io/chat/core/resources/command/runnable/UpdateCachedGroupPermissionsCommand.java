@@ -4,7 +4,7 @@ import com.ryanafzal.io.chat.core.client.Client;
 import com.ryanafzal.io.chat.core.resources.command.RunnableCommand;
 import com.ryanafzal.io.chat.core.resources.user.permission.Level;
 
-public class UpdateCachedGroupPermissionsCommand implements RunnableCommand {
+public class UpdateCachedGroupPermissionsCommand extends RunnableCommand {
 	
 	private static final long serialVersionUID = 8047156003099194491L;
 	

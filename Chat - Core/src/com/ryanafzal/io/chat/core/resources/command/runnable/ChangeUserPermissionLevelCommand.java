@@ -9,7 +9,7 @@ import com.ryanafzal.io.chat.core.resources.user.User;
 import com.ryanafzal.io.chat.core.resources.user.permission.Level;
 import com.ryanafzal.io.chat.core.server.Server;
 
-public class ChangeUserPermissionLevelCommand implements RunnableCommand {
+public class ChangeUserPermissionLevelCommand extends RunnableCommand {
 	
 	private static final long serialVersionUID = -8701721967048667160L;
 	

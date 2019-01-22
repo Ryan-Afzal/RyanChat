@@ -3,7 +3,7 @@ package com.ryanafzal.io.chat.core.resources.command.runnable;
 import com.ryanafzal.io.chat.core.client.Client;
 import com.ryanafzal.io.chat.core.resources.command.RunnableCommand;
 
-public class AlertCommand implements RunnableCommand {
+public class AlertCommand extends RunnableCommand {
 	
 	private static final long serialVersionUID = -2824804324473133917L;
 	

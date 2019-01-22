@@ -17,7 +17,7 @@ public enum Level implements Serializable {
 	/**
 	 * Accessible to officers and above.
 	 */
-	OFFICER("Officer", 2, Color.AQUAMARINE), 
+	OFFICER("Officer", 2, Color.RED), 
 	/**
 	 * Accessible to administrators and above.
 	 */

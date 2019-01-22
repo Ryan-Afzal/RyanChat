@@ -3,13 +3,17 @@ package com.ryanafzal.io.chat.core.resources.command.runnable;
 import com.ryanafzal.io.chat.core.resources.command.RunnableCommand;
 import com.ryanafzal.io.chat.core.resources.sendable.Packet;
 import com.ryanafzal.io.chat.core.resources.sendable.PacketCommand;
+import com.ryanafzal.io.chat.core.resources.sendable.PacketContents;
 import com.ryanafzal.io.chat.core.resources.sendable.PacketData;
+import com.ryanafzal.io.chat.core.resources.sendable.PacketMessage;
+import com.ryanafzal.io.chat.core.resources.sendable.PacketData.AddressType;
 import com.ryanafzal.io.chat.core.resources.user.User;
 import com.ryanafzal.io.chat.core.resources.user.UserNotFoundException;
 import com.ryanafzal.io.chat.core.resources.user.permission.Level;
 import com.ryanafzal.io.chat.core.server.Connection;
+import com.ryanafzal.io.chat.core.server.Server;
 
-public class LoginCommand implements RunnableCommand {
+public class LoginCommand extends RunnableCommand {
 	
 	private static final long serialVersionUID = 7838053858700842032L;
 	
@@ -38,6 +42,13 @@ public class LoginCommand implements RunnableCommand {
 			e.printStackTrace();
 			return;
 		}
+		
+		connection.setUser(u);
+		
+		PacketData messagedata = new PacketData(User.SERVER.getID(), AddressType.GROUP, Server.GLOBAL_GROUP_ID, Level.USER);
+		PacketContents messagecontents = new PacketMessage(User.SERVER.getName(), connection.getUser().getName() + " has connected.", Level.SERVER);
+		Packet messagepacket = new Packet(messagecontents, messagedata);
+		connection.server.enqueuePacket(messagepacket);
 		
 		connection.server.inductConnection(u.getID(), connection);
 		
