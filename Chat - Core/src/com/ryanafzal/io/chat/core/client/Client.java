@@ -28,6 +28,11 @@ import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
 import javafx.scene.control.Toggle;
 
+/**
+ * Holds client interaction code
+ * @author s-afzalr
+ *
+ */
 public class Client {
 	
 	private ClientGUI parent;
