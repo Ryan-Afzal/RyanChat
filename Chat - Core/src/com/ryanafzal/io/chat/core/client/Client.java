@@ -37,6 +37,11 @@ public class Client {
 	
 	private ClientGUI parent;
 	
+	/**
+	 * THIS IS THE IP ADDRESS FOR THE SERVER!
+	 */
+	private static final String SERVER_IP_ADDRESS = "24.16.159.137";
+	
 	private int PORT = 440;
 	private InetAddress IP;
 	
@@ -89,8 +94,9 @@ public class Client {
 			@Override 
 		    protected Void call() throws Exception {
 		    	try {
-					IP = InetAddress.getByName("51S500036590.it.bsd405.org");
-					socket = new Socket(IP, PORT);
+					//IP = InetAddress.getByName("51S500036590.it.bsd405.org");
+					IP = InetAddress.getByName(SERVER_IP_ADDRESS);
+		    		socket = new Socket(IP, PORT);
 					
 		            toServer = new ToServerThread(socket, c);
 					fromServer = new FromServerThread(socket, c);
