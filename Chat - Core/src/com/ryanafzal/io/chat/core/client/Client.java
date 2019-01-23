@@ -40,7 +40,7 @@ public class Client {
 	/**
 	 * THIS IS THE IP ADDRESS FOR THE SERVER!
 	 */
-	private static final String SERVER_IP_ADDRESS = "10.0.0.14.24.16.159.137";
+	private static final String SERVER_IP_ADDRESS = "24.16.159.137";
 	
 	private int PORT = 4444;
 	private InetAddress IP;
