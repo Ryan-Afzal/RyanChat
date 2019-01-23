@@ -22,7 +22,7 @@ import com.ryanafzal.io.chat.core.resources.user.permission.Level;
 
 public class Server {
 	
-	public int PORT = 440;
+	public int PORT = 4444;
 	
 	public static final long GLOBAL_GROUP_ID = 0;
 	public static final String CONFIGPATH = "data\\config.txt";
