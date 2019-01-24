@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 
+import com.ryanafzal.io.chat.core.resources.file.Logger;
 import com.ryanafzal.io.chat.core.resources.misc.Slow;
 import com.ryanafzal.io.chat.core.resources.misc.Speed;
 import com.ryanafzal.io.chat.core.resources.sendable.Packet;
@@ -43,11 +44,15 @@ public class Server {
 	private HashMap<String, User> usernames;//Username -> User;
 	private HashMap<Long, User> users;//UserID -> User
 	private HashMap<Long, BaseGroup> groups;//GroupID -> Group
-
+	
+	private Logger logger;
+	
 	@Slow
 	@Speed("")
 	public Server(ServerGUI parent) {
 		this.parent = parent;
+		
+		this.logger = new Logger("data/logs/Log.txt");
 		
 		this.unmappedConnections = new HashSet<Connection>();
 		this.connections = new HashMap<Long, Connection>();
@@ -122,6 +127,8 @@ public class Server {
 			InetAddress addr = InetAddress.getByName(this.serverHost);
 			serverSocket = new ServerSocket(PORT, 50, addr);
 			this.parent.outputCommandMessage("SERVER STARTING ON PORT: " + this.serverSocket.getLocalSocketAddress());
+			
+			this.logger.log("SERVER STARTING ON PORT: " + this.serverSocket.getLocalSocketAddress());
 			
 			this.acceptClients();
 		} catch (IOException e) {
