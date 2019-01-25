@@ -21,7 +21,7 @@ public class PacketDistributionThread extends Task<Void> {
 	
 	@Override
 	public Void call() throws Exception {
-		while (this.server.isRunning() && !this.isCancelled()) {
+		while (this.server.isServerRunning() && !this.isCancelled()) {
 			if (this.server.arePacketsQueued()) {
 				Packet packet = this.server.dequeuePacket();
 				

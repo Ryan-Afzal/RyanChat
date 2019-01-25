@@ -32,7 +32,7 @@ public class FromClientThread extends Task<Void> {
 	public Void call() {
 		try (ObjectInputStream fromServerThread = new ObjectInputStream(this.socket.getInputStream())) {
 
-			while (!this.socket.isClosed() && this.server.isRunning() && !this.isCancelled()) {
+			while (!this.socket.isClosed() && this.server.isServerRunning() && !this.isCancelled()) {
 				try {
 					Packet input = (Packet) fromServerThread.readObject();
 					

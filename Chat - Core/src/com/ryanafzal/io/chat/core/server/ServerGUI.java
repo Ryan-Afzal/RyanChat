@@ -9,7 +9,9 @@ public class ServerGUI extends ApplicationWindow {
 	private Server server;
 	
 	public ServerGUI() {
+		super();
 		this.server = new Server(this);
+		this.server.run();
 	}
 
 	@Speed("1")

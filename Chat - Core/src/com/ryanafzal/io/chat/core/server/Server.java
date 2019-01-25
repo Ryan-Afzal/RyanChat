@@ -21,7 +21,9 @@ import com.ryanafzal.io.chat.core.resources.user.groups.BaseGroup;
 import com.ryanafzal.io.chat.core.resources.user.groups.GlobalServerGroup;
 import com.ryanafzal.io.chat.core.resources.user.permission.Level;
 
-public class Server {
+import javafx.concurrent.Task;
+
+public class Server extends Task<Void> {
 	
 	public int PORT = 4444;
 	
@@ -45,14 +47,10 @@ public class Server {
 	private HashMap<Long, User> users;//UserID -> User
 	private HashMap<Long, BaseGroup> groups;//GroupID -> Group
 	
-	private Logger logger;
-	
 	@Slow
 	@Speed("")
 	public Server(ServerGUI parent) {
 		this.parent = parent;
-		
-		this.logger = new Logger("data/logs/Log.txt");
 		
 		this.unmappedConnections = new HashSet<Connection>();
 		this.connections = new HashMap<Long, Connection>();
@@ -67,7 +65,6 @@ public class Server {
 		}
 		
 		this.initData();
-		this.startServer();
 	}
 	
 	public void changeGroupPermissions(long group, long user, Level level) {
@@ -127,8 +124,6 @@ public class Server {
 			InetAddress addr = InetAddress.getByName(this.serverHost);
 			serverSocket = new ServerSocket(PORT, 50, addr);
 			this.parent.outputCommandMessage("SERVER STARTING ON PORT: " + this.serverSocket.getLocalSocketAddress());
-			
-			this.logger.log("SERVER STARTING ON PORT: " + this.serverSocket.getLocalSocketAddress());
 			
 			this.acceptClients();
 		} catch (IOException e) {
@@ -270,7 +265,7 @@ public class Server {
 	}
 	
 	@Speed("1")
-	public boolean isRunning() {
+	public boolean isServerRunning() {
 		return this.parent.isRunning();
 	}
 	
@@ -282,6 +277,17 @@ public class Server {
 	@Speed("1")
 	public User getUserByName(String name) {
 		return this.usernames.get(name);
+	}
+
+	@Override
+	protected Void call() throws Exception {
+		this.startServer();
+		
+		while (this.isServerRunning() && !this.isCancelled()) {
+			//TODO
+		}
+		
+		return null;
 	}
 
 }
