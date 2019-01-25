@@ -28,17 +28,12 @@ public class ServerThread extends Task<Void> {
 	public Void call() {
 		while (this.server.isServerRunning() && !this.isCancelled()) {
 			try {
-				//Accept a connection
 				Socket socket = this.serverSocket.accept();
-				
-				//Add the connection to the server.
 				this.server.addConnection(socket);
-				
-				//Output a status message
-				this.server.getParent().outputCommandMessage("ACCEPTED CLIENT AT: " + socket.getRemoteSocketAddress());
+				this.server.log("ACCEPTED CLIENT AT: " + socket.getRemoteSocketAddress());
 			} catch (IOException ex) {
 				ex.printStackTrace();
-				this.server.getParent().outputErrorMessage("ACCEPT FAILED ON PORT: " + this.server.PORT);
+				this.server.logError("ACCEPT FAILED ON PORT: " + this.server.PORT);
 			}
 		}
 		

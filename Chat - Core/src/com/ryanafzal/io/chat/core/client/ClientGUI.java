@@ -43,6 +43,7 @@ public class ClientGUI extends ApplicationWindow {
 	private ToggleGroup levelToggleGroup;
 	
 	public ClientGUI() {
+		super("SpencerChat");
 		this.client = new Client(this);
 		new ChangeLevelCommand(this.registry);
 		
@@ -128,11 +129,6 @@ public class ClientGUI extends ApplicationWindow {
 		right.getChildren().add(messageDataPane);
 		
 		this.root.setRight(right);
-	}
-	
-	@Override
-	public String getTitle() {
-		return "SpencerChat";
 	}
 	
 	@Override

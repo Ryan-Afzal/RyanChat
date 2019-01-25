@@ -33,16 +33,26 @@ public abstract class ApplicationWindow extends Application {
 	private OutputArea outputArea;
 	private TextField inputField;
 	
-	protected boolean isRunning;
+	private boolean isRunning;
 	private boolean isReady = false;
+	private String title;
 	
 	public final CommandRegistry registry;
 	
-	public ApplicationWindow() {
+	public ApplicationWindow(String title) {
 		this.isRunning = true;
 		this.registry = new CommandRegistry(this);
-		this.root = new BorderPane();
+		this.title = title;	
+	}
+
+	@Override
+	public void start(Stage primaryStage) throws Exception {
+		this.primaryStage = primaryStage;
+		this.primaryStage.setTitle(this.title);
 		
+		//Root
+		this.root = new BorderPane();
+
 		//Center
 		VBox centerPane = new VBox();
 		
@@ -74,13 +84,6 @@ public abstract class ApplicationWindow extends Application {
 		
 		this.root.setCenter(centerPane);
 		
-	}
-
-	@Override
-	public void start(Stage primaryStage) throws Exception {
-		this.primaryStage = primaryStage;
-		this.primaryStage.setTitle(this.getTitle());
-		
 		this.primaryStage.setScene(new Scene(this.root, ApplicationWindow.WIDTH, ApplicationWindow.HEIGHT, Color.BLACK));
 		this.primaryStage.show();
 	}
@@ -90,7 +93,7 @@ public abstract class ApplicationWindow extends Application {
 	}
 	
 	@Override
-	public void stop() {
+	public final void stop() {
 		this.isRunning = false;
 		this.onClose();
 	}
@@ -142,23 +145,17 @@ public abstract class ApplicationWindow extends Application {
 		this.outputMessage(header + message.MESSAGE, message.LEVEL);
 	}
 	
-	public boolean isReady() {
+	public final boolean isReady() {
 		return this.isReady;
 	}
 	
-	public void setReady(boolean ready) {
+	public final void setReady(boolean ready) {
 		this.isReady = ready;
 	}
 	
-	public boolean isRunning() {
+	public final boolean isRunning() {
 		return this.isRunning;
 	}
-	
-	/**
-	 * Gets the title of the window.
-	 * @return Returns the title of the window.
-	 */
-	public abstract String getTitle();
 	
 	/**
 	 * Processes a line of input from the window's console.

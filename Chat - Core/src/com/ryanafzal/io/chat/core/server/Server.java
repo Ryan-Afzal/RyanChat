@@ -7,9 +7,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 
-import com.ryanafzal.io.chat.core.resources.file.Logger;
 import com.ryanafzal.io.chat.core.resources.misc.Slow;
 import com.ryanafzal.io.chat.core.resources.misc.Speed;
 import com.ryanafzal.io.chat.core.resources.sendable.Packet;
@@ -32,13 +30,11 @@ public class Server extends Task<Void> {
 	
 	private final ServerGUI parent;
 	
-	protected String serverHost;
+	private InetAddress serverHost;
 	private ServerSocket serverSocket;
 	
 	private ServerThread acceptClientsThread;
 	private PacketDistributionThread packetDistributionThread;
-	
-	private LinkedList<Packet> packetQueue;
 	
 	private HashSet<Connection> unmappedConnections;
 	private HashMap<Long, Connection> connections;//UserID -> Connection to User
@@ -47,55 +43,15 @@ public class Server extends Task<Void> {
 	private HashMap<Long, User> users;//UserID -> User
 	private HashMap<Long, BaseGroup> groups;//GroupID -> Group
 	
-	@Slow
-	@Speed("")
-	public Server(ServerGUI parent) {
+	public Server(ServerGUI parent) throws UnknownHostException {
 		this.parent = parent;
 		
 		this.unmappedConnections = new HashSet<Connection>();
 		this.connections = new HashMap<Long, Connection>();
 		
-		this.packetQueue = new LinkedList<Packet>();
-		
-		try	{
-			this.serverHost = InetAddress.getLocalHost().getHostAddress();
-		} catch (UnknownHostException e) {
-			this.serverHost = "";
-			e.printStackTrace();
-		}
+		this.serverHost = InetAddress.getLocalHost();
 		
 		this.initData();
-	}
-	
-	public void changeGroupPermissions(long group, long user, Level level) {
-		this.changeGroupPermissions(this.getGroupByID(group), this.getUserByID(user), level);
-	}
-	
-	public void changeGroupPermissions(BaseGroup group, User user, Level level) {
-		group.changePermission(user.getID(), level);
-		user.setPermissionLevel(group.GROUPID, level);
-	}
-	
-	@Speed("1")
-	public BaseGroup getGroupByID(long address) {
-		return this.groups.get(address);
-	}
-	
-	@Speed("1")
-	public User getUserByID(long ID) {
-		return this.users.get(ID);
-	}
-	
-	@Speed("1")
-	public void addUser(User user) {
-		this.usernames.put(user.getName(), user);
-		this.users.put(user.getID(), user);
-	}
-	
-	@Speed("1")
-	public void removeUser(User user) {
-		this.usernames.remove(user.getName());
-		this.users.remove(user.getID());
 	}
 	
 	@Speed("1")
@@ -121,21 +77,20 @@ public class Server extends Task<Void> {
 		serverSocket = null;
 
 		try {
-			InetAddress addr = InetAddress.getByName(this.serverHost);
-			serverSocket = new ServerSocket(PORT, 50, addr);
-			this.parent.outputCommandMessage("SERVER STARTING ON PORT: " + this.serverSocket.getLocalSocketAddress());
+			serverSocket = new ServerSocket(PORT, 50, this.serverHost);
+			this.log("SERVER STARTING ON PORT: " + this.serverSocket.getLocalSocketAddress());
 			
 			this.acceptClients();
 		} catch (IOException e) {
 			e.printStackTrace();
-			this.parent.outputErrorMessage("COULD NOT LISTEN ON PORT: " + PORT);
+			this.logError("COULD NOT LISTEN ON PORT: " + PORT);
 		}
 	}
 	
 	/**
-	 * Starts two threads:
-	 * 1. The {@code ServerThread}, which accepts clients and creates connections.
-	 * 2. The {@code PacketDistributionThread}, which distributes packets to clients.
+	 * Starts distribution threads:
+	 * 1. The ServerThread, which accepts clients and creates connections.
+	 * 2. The PacketDistributionThread, which distributes packets to clients.
 	 */
 	@Speed("1")
 	private void acceptClients() {
@@ -148,39 +103,50 @@ public class Server extends Task<Void> {
 		pdThread.start();
 	}
 	
-	public void onClose() {
-		try {
-			this.acceptClientsThread.cancel();
-			this.packetDistributionThread.cancel();
-			this.serverSocket.close();
-			
-			for (Connection c : this.unmappedConnections) {
-				c.destroy();
-			}
-			
-			for (Connection c : this.connections.values()) {
-				c.destroy();
-			}
-			
-			System.exit(0);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+	public synchronized void changeGroupPermissions(long group, long user, Level level) {
+		this.changeGroupPermissions(this.getGroupByID(group), this.getUserByID(user), level);
+	}
+	
+	public synchronized void changeGroupPermissions(BaseGroup group, User user, Level level) {
+		group.changePermission(user.getID(), level);
+		user.setPermissionLevel(group.GROUPID, level);
 	}
 	
 	@Speed("1")
-	public void addConnection(Socket socket) {
+	public BaseGroup getGroupByID(long address) {
+		return this.groups.get(address);
+	}
+	
+	@Speed("1")
+	public User getUserByID(long ID) {
+		return this.users.get(ID);
+	}
+	
+	@Speed("1")
+	public synchronized void addUser(User user) {
+		this.usernames.put(user.getName(), user);
+		this.users.put(user.getID(), user);
+	}
+	
+	@Speed("1")
+	public synchronized void removeUser(User user) {
+		this.usernames.remove(user.getName());
+		this.users.remove(user.getID());
+	}
+	
+	@Speed("1")
+	public synchronized void addConnection(Socket socket) {
 		this.addConnection(this.createConnection(socket));
 	}
 	
 	@Speed("1")
-	public void addConnection(Connection connection) {
+	public synchronized void addConnection(Connection connection) {
 		this.unmappedConnections.add(connection);
 	}
 
 	@Slow
 	@Speed("n")
-	public void destroyConnection(Socket socket) {
+	public synchronized void destroyConnection(Socket socket) {
 		Connection con = this.unmappedConnections
 		.stream()
 		.filter(c -> c.socket.equals(socket))
@@ -200,18 +166,18 @@ public class Server extends Task<Void> {
 	}
 	
 	@Speed("1")
-	public void destroyConnection(Connection connection) {
+	public synchronized void destroyConnection(Connection connection) {
 		this.connections.remove(connection);
 	}
 	
 	@Speed("1")
-	public void inductConnection(long ID, Connection connection) {
+	public synchronized void inductConnection(long ID, Connection connection) {
 		this.unmappedConnections.remove(connection);
 		this.connections.put(ID, connection);
 	}
 	
 	@Speed("1")
-	public void deductConnection(long ID) {
+	public synchronized void deductConnection(long ID) {
 		this.unmappedConnections.add(this.connections.get(ID));
 		this.connections.remove(ID);
 	}
@@ -220,10 +186,9 @@ public class Server extends Task<Void> {
 	private Connection createConnection(Socket socket) {
 		return new Connection(this, socket);
 	}
-
-	@Slow
-	@Speed("n")
-	public User login(String username, int password, boolean register) throws UserNotFoundException {
+	
+	@Speed("1")
+	public synchronized User login(String username, int password, boolean register) throws UserNotFoundException {
 		User found = this.usernames.get(username);
 		
 		if (found == null) {
@@ -245,40 +210,40 @@ public class Server extends Task<Void> {
 	}
 	
 	@Speed("1")
-	public void enqueuePacket(Packet packet) {
-		this.packetQueue.addFirst(packet);
+	public synchronized void enqueuePacket(Packet packet) {
+		this.packetDistributionThread.queuePacket(packet);
 	}
 	
 	@Speed("1")
-	public Packet dequeuePacket() {
-		return this.packetQueue.removeLast();
-	}
-	
-	@Speed("1")
-	public boolean arePacketsQueued() {
-		return !this.packetQueue.isEmpty();
-	}
-	
-	@Speed("1")
-	public Connection getConnectionByUserID(long l) {
+	public synchronized Connection getConnectionByUserID(long l) {
 		return this.connections.get(l);
 	}
 	
 	@Speed("1")
-	public boolean isServerRunning() {
+	public synchronized boolean isServerRunning() {
 		return this.parent.isRunning();
 	}
 	
 	@Speed("1")
-	public ServerGUI getParent() {
-		return this.parent;
-	}
-	
-	@Speed("1")
-	public User getUserByName(String name) {
+	public synchronized User getUserByName(String name) {
 		return this.usernames.get(name);
 	}
-
+	
+	public void log(String text) {
+		this.parent.outputCommandMessage(text);
+		this.logToFile(text);
+	}
+	
+	public void logError(String text) {
+		text += "[ERROR]";
+		this.parent.outputErrorMessage(text);
+		this.logToFile(text);
+	}
+	
+	private void logToFile(String text) {
+		//TODO
+	}
+	
 	@Override
 	protected Void call() throws Exception {
 		this.startServer();
@@ -287,7 +252,30 @@ public class Server extends Task<Void> {
 			//TODO
 		}
 		
+		this.close();
+		
 		return null;
+	}
+	
+	protected void close() {
+		try {
+			this.acceptClientsThread.cancel();
+			this.packetDistributionThread.cancel();
+			
+			for (Connection c : this.unmappedConnections) {
+				c.destroy();
+			}
+			
+			for (Connection c : this.connections.values()) {
+				c.destroy();
+			}
+			
+			this.serverSocket.close();
+			
+			System.exit(0);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 }
