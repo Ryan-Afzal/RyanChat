@@ -45,6 +45,8 @@ public class ClientGUI extends ApplicationWindow {
 	public ClientGUI() {
 		super("SpencerChat");
 		this.client = new Client(this);
+		new Thread(this.client).start();
+		
 		new ChangeLevelCommand(this.registry);
 		
 		GridPane loginPane = new GridPane();
@@ -138,7 +140,7 @@ public class ClientGUI extends ApplicationWindow {
 	
 	@Override
 	public void onClose() {
-		this.client.onClose();
+		this.client.close();
 	}
 	
 	@Override

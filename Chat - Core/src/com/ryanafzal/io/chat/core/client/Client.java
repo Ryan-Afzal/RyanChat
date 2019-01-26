@@ -176,26 +176,21 @@ public class Client {
 	 */
 	protected void changedRegisterToggle(ObservableValue<? extends Toggle> ov,
             Toggle toggle, Toggle new_toggle) {
-                if (new_toggle == null) {
-                	register = false;
-                } else {
-                	register = (Boolean) new_toggle.getUserData();
-                }
+		if (new_toggle == null) {
+        	register = false;
+        } else {
+        	register = (Boolean) new_toggle.getUserData();
+        }
     }
 	
 	protected void changedLevelToggle(ObservableValue<? extends Toggle> ov,
             Toggle toggle, Toggle new_toggle) {
-                currentVisibilityLevel = (Level) new_toggle.getUserData();
+		currentVisibilityLevel = (Level) new_toggle.getUserData();
 	}
 	
 	@Speed("1")
 	public boolean isRunning() {
 		return this.parent.isRunning();
-	}
-	
-	@Speed("1")
-	public ClientGUI getParent() {
-		return this.parent;
 	}
 	
 	public long getCurrentGroupID() {
