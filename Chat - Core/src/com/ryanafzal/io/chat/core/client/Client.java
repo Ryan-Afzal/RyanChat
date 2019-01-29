@@ -12,13 +12,16 @@ import com.ryanafzal.io.chat.core.resources.command.Command;
 import com.ryanafzal.io.chat.core.resources.command.CommandInfo;
 import com.ryanafzal.io.chat.core.resources.command.runnable.DisconnectCommand;
 import com.ryanafzal.io.chat.core.resources.command.runnable.LoginCommand;
+import com.ryanafzal.io.chat.core.resources.command.runnable.PingFactory;
 import com.ryanafzal.io.chat.core.resources.misc.Speed;
 import com.ryanafzal.io.chat.core.resources.sendable.Packet;
 import com.ryanafzal.io.chat.core.resources.sendable.PacketCommand;
 import com.ryanafzal.io.chat.core.resources.sendable.PacketContents;
 import com.ryanafzal.io.chat.core.resources.sendable.PacketData;
+import com.ryanafzal.io.chat.core.resources.sendable.PacketDataFactory;
 import com.ryanafzal.io.chat.core.resources.sendable.PacketMessage;
 import com.ryanafzal.io.chat.core.resources.thread.FromServerThread;
+import com.ryanafzal.io.chat.core.resources.thread.PingThread;
 import com.ryanafzal.io.chat.core.resources.thread.ToServerThread;
 import com.ryanafzal.io.chat.core.resources.user.User;
 import com.ryanafzal.io.chat.core.resources.user.permission.Level;
@@ -33,23 +36,25 @@ import javafx.scene.control.Toggle;
  * @author s-afzalr
  *
  */
-public class Client {
+public class Client extends Task<Void> {
 	
 	private ClientGUI parent;
 	
 	/**
 	 * THIS IS THE IP ADDRESS FOR THE SERVER!
 	 */
-	private static final String SERVER_IP_ADDRESS = "24.16.159.137";
+	public static final String SERVER_IP_ADDRESS = "24.16.159.137";
 	
 	private int PORT = 4444;
 	private InetAddress IP;
 	
-	private User user;
+	private User user = User.GUEST;
 	
 	private Socket socket;
 	private ToServerThread toServer;
 	private FromServerThread fromServer;
+	
+	private PingThread ping;
 	
 	private boolean register;
 	private long currentGroupID;
@@ -91,7 +96,7 @@ public class Client {
 		final Client c = this;
 		
 		Task<Void> task = new Task<Void>() {
-			@Override 
+			@Override
 		    protected Void call() throws Exception {
 		    	try {
 					IP = InetAddress.getByName("51S500036590.it.bsd405.org");
@@ -100,11 +105,15 @@ public class Client {
 					
 		            toServer = new ToServerThread(socket, c);
 					fromServer = new FromServerThread(socket, c);
+					
+					ping = new PingThread(c);
 		            
 		            Thread serverInThread = new Thread(toServer);
 		            Thread serverOutThread = new Thread(fromServer);
+		            Thread pingThread = new Thread(ping);
 		            serverInThread.start();
 		            serverOutThread.start();
+		            pingThread.start();
 				} catch (UnknownHostException e) {
 					e.printStackTrace();
 				} catch (IOException e) {
@@ -118,25 +127,38 @@ public class Client {
 		new Thread(task).start();
 	}
 	
+	public void outputPacketMessage(PacketMessage message, PacketData data) {
+		this.parent.outputPacketMessage(message, data);
+	}
+	
+	public void attemptPing() {
+		this.queuePacket(PingFactory.createPing(this.getUser().getID()));
+	}
+	
+	public void updatePing() {
+		this.ping.updatePing();
+	}
+	
 	public void login(String username, String password) {
-		PacketData data = new PacketData(0, PacketData.AddressType.SERVER, User.SERVER.getID(), Level.SERVER);
+		PacketData data = PacketDataFactory.getToServerPacketData(this.getUser().getID());
 		PacketContents contents = new PacketCommand(new LoginCommand(username, password.hashCode(), this.register));
 		Packet packet = new Packet(contents, data);
-		this.toServer.addPacket(packet);
+		this.queuePacket(packet);
 	}
 	
 	private void disconnect() {
-		PacketData data = new PacketData(this.user.getID(),PacketData.AddressType.SERVER, User.SERVER.getID(), Level.SERVER);
+		PacketData data = PacketDataFactory.getToServerPacketData(this.getUser().getID());
 		PacketContents contents = new PacketCommand(new DisconnectCommand());
 		Packet packet = new Packet(contents, data);
-		this.toServer.addPacket(packet);
+		this.queuePacket(packet);
 	}
 
-	public void onClose() {
+	protected void close() {
 		this.disconnect();
 		
 		this.toServer.cancel();
 		this.fromServer.cancel();
+		this.ping.cancel();
 		
 		try {
 			this.socket.close();
@@ -144,7 +166,6 @@ public class Client {
 			e.printStackTrace();
 		}
 	}
-	
 	
 	public Level getPermissionRank() {
 		return this.user.getPermissionLevel(this.currentGroupID);
@@ -158,7 +179,7 @@ public class Client {
 		this.user = user;
 	}
 	
-	public void printWelcomeMessage() {
+	private void printWelcomeMessage() {
 		this.parent.outputCommandMessage(""
 				+ "Successfully Signed In as: " + this.user.getName()
 				);
@@ -189,7 +210,7 @@ public class Client {
 	}
 	
 	@Speed("1")
-	public boolean isRunning() {
+	public boolean isClientRunning() {
 		return this.parent.isRunning();
 	}
 	
@@ -199,6 +220,29 @@ public class Client {
 	
 	public void queuePacket(Packet packet) {
 		this.toServer.addPacket(packet);
+	}
+	
+	public void connected() {
+		this.parent.setReady(true);
+		this.refreshUserDataPane();
+		this.printWelcomeMessage();
+	}
+	
+	public void disconnected() {
+		this.disconnect();
+	}
+	
+	@Override
+	protected Void call() throws Exception {
+		
+		
+		while (this.isClientRunning() && !this.isCancelled()) {
+			//TODO
+		}
+		
+		this.close();
+		
+		return null;
 	}
 
 }

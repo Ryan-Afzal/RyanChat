@@ -27,7 +27,7 @@ public class ToServerThread extends Task<Void> {
 		try (ObjectOutputStream toServerStream = new ObjectOutputStream(this.socket.getOutputStream())) {
 			toServerStream.flush();
 			
-			while (!this.socket.isClosed() && this.client.isRunning() && !this.isCancelled()) {
+			while (!this.socket.isClosed() && this.client.isClientRunning() && !this.isCancelled()) {
 				if (!this.packetsToSend.isEmpty()) {
 					Packet nextSend;
 					

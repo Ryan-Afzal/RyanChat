@@ -9,6 +9,7 @@ public class User implements Serializable {
 	
 	private static final long serialVersionUID = 2123732792688009294L;
 	
+	public static final User GUEST = new User("GUEST", 1, 1);
 	public static final User SERVER = new User("SERVER", 0, 0);
 	
 	private String name;

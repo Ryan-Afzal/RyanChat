@@ -28,12 +28,12 @@ public class FromServerThread extends Task<Void> {
 	public Void call() {
 		try (ObjectInputStream fromServerThread = new ObjectInputStream(this.socket.getInputStream())) {
 
-			while (!this.socket.isClosed() && this.client.isRunning() && !this.isCancelled()) {
+			while (!this.socket.isClosed() && this.client.isClientRunning() && !this.isCancelled()) {
 				try {
 					Packet input = (Packet) fromServerThread.readObject();
 					PacketContents contents = input.getPacketContents();
 					if (contents instanceof PacketMessage) {
-						this.client.getParent().outputPacketMessage((PacketMessage) contents, input.getPacketData());
+						this.client.outputPacketMessage((PacketMessage) contents, input.getPacketData());
 					} else if (contents instanceof PacketCommand) {
 						PacketCommand cmd = (PacketCommand) contents;
 						
