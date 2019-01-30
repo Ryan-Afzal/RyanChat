@@ -1,21 +1,22 @@
 package com.ryanafzal.io.chat.core.resources.thread;
 
+import java.time.Duration;
+import java.time.Instant;
+
 import com.ryanafzal.io.chat.core.client.Client;
 
 import javafx.concurrent.Task;
 
 public class PingThread extends Task<Void> {
 
-	public static final double THRESHHOLD = 5000;
+	/**
+	 * The number of seconds without a ping signal until the thread notifies disconnection.
+	 */
+	public static final double THRESHHOLD = 30;
 	
 	private Client client;
 	
-	
-	
-	/**
-	 * How long since the last ping, in milliseconds
-	 */
-	private double lastPing;
+	private Instant lastPingTime;
 
 	public PingThread(Client client) {
 		this.client = client;
@@ -24,7 +25,7 @@ public class PingThread extends Task<Void> {
 	@Override
 	public Void call() {
 		while (this.client.isClientRunning() && !this.isCancelled()) {
-			if (this.lastPing > PingThread.THRESHHOLD) {
+			if (Duration.between(this.lastPingTime, Instant.now()).getSeconds() > PingThread.THRESHHOLD) {
 				this.client.disconnected();
 			}
 		}
@@ -33,7 +34,7 @@ public class PingThread extends Task<Void> {
 	}
 	
 	public synchronized void updatePing() {
-		this.lastPing = 0.0;
+		this.lastPingTime = Instant.now();
 	}
 
 }

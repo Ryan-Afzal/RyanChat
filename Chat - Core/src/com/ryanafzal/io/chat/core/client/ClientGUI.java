@@ -20,10 +20,11 @@ import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
 public class ClientGUI extends ApplicationWindow {
 	
-	public final Client client;
+	public Client client;
 	
 	//Login GUI
 	private Label usernameLabel;
@@ -44,11 +45,12 @@ public class ClientGUI extends ApplicationWindow {
 	
 	public ClientGUI() {
 		super("SpencerChat");
-		this.client = new Client(this);
-		new Thread(this.client).start();
 		
 		new ChangeLevelCommand(this.registry);
-		
+	}
+	
+	@Override
+	protected void initGUI(Stage stage) {
 		GridPane loginPane = new GridPane();
 	    loginPane.setHgap(10);
 	    loginPane.setVgap(10);
@@ -131,6 +133,9 @@ public class ClientGUI extends ApplicationWindow {
 		right.getChildren().add(messageDataPane);
 		
 		this.root.setRight(right);
+		
+		this.client = new Client(this);
+		new Thread(this.client).start();
 	}
 	
 	@Override

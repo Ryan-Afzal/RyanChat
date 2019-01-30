@@ -52,6 +52,7 @@ public class Server extends Task<Void> {
 		this.serverHost = InetAddress.getLocalHost();
 		
 		this.initData();
+		this.startServer();
 	}
 	
 	@Speed("1")
@@ -65,17 +66,25 @@ public class Server extends Task<Void> {
 		//User prepopulation here
 		
 		User ryanafzal = new User("Ryan Afzal", "ryanafzal", 1337);
+		User brandonchen = new User("Brandon Chen", "brandonchen", 0226);
+		User fishbear = new User("Fish Bear", "fishbear", 2448);
+		
 		this.addUser(ryanafzal);
+		this.addUser(brandonchen);
+		this.addUser(fishbear);
 		global.addUser(ryanafzal, Level.ADMIN);
+		global.addUser(brandonchen, Level.OFFICER);
+		global.addUser(fishbear, Level.MODERATOR);
+		
 		this.groups.put(Server.GLOBAL_GROUP_ID, global);
 		
 		//TODO
 	}
-
+	
 	@Speed("1")
-	private void startServer() {
+	private synchronized void startServer() {
 		serverSocket = null;
-
+		
 		try {
 			serverSocket = new ServerSocket(PORT, 50, this.serverHost);
 			this.log("SERVER STARTING ON PORT: " + this.serverSocket.getLocalSocketAddress());
@@ -220,7 +229,7 @@ public class Server extends Task<Void> {
 	}
 	
 	@Speed("1")
-	public synchronized boolean isServerRunning() {
+	public boolean isServerRunning() {
 		return this.parent.isRunning();
 	}
 	
@@ -235,7 +244,7 @@ public class Server extends Task<Void> {
 	}
 	
 	public void logError(String text) {
-		text += "[ERROR]";
+		text = "[ERROR]" + text;
 		this.parent.outputErrorMessage(text);
 		this.logToFile(text);
 	}

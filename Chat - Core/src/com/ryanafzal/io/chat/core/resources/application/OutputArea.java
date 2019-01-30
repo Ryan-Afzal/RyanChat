@@ -1,6 +1,5 @@
 package com.ryanafzal.io.chat.core.resources.application;
 
-import javafx.application.Platform;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -32,15 +31,10 @@ public class OutputArea extends ScrollPane {
 		text.setText(line);
 		text.setFont(Font.font("Consolas", 20));
 		text.setFill(color);
-		
-		Platform.runLater(new Runnable() {
-			@Override
-			public void run() {
+		System.out.println(text.getText());
 				box.getChildren().add(text);
 				layout();
 				setVvalue(getVmax());
-			}
-		});
 	}
 	
 }

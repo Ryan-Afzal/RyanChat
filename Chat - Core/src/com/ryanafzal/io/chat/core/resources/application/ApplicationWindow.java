@@ -86,6 +86,8 @@ public abstract class ApplicationWindow extends Application {
 		
 		this.primaryStage.setScene(new Scene(this.root, ApplicationWindow.WIDTH, ApplicationWindow.HEIGHT, Color.BLACK));
 		this.primaryStage.show();
+		
+		this.initGUI(this.primaryStage);
 	}
 
 	public static void main(String[] args) {
@@ -106,7 +108,7 @@ public abstract class ApplicationWindow extends Application {
 	 * Outputs a message.
 	 * @param message The message to output.
 	 */
-	public void outputMessage(String message) {
+	public /*synchronized */void outputMessage(String message) {
 		this.outputArea.addLine(message);
 	}
 	
@@ -115,7 +117,7 @@ public abstract class ApplicationWindow extends Application {
 	 * @param message The message to output.
 	 * @param level The permission level to output in.
 	 */
-	public void outputMessage(String message, Level level) {
+	public /*synchronized */void outputMessage(String message, Level level) {
 		this.outputArea.addLine(message, level.getColor());
 	}
 	
@@ -123,7 +125,7 @@ public abstract class ApplicationWindow extends Application {
 	 * Outputs an error message.
 	 * @param message The message to output.
 	 */
-	public void outputErrorMessage(String message) {
+	public /*synchronized */void outputErrorMessage(String message) {
 		this.outputArea.addLine(message, ERROR_COLOR);
 	}
 	
@@ -131,11 +133,11 @@ public abstract class ApplicationWindow extends Application {
 	 * Outputs a 'command formatted' message.
 	 * @param message The message to output.
 	 */
-	public void outputCommandMessage(String message) {
+	public /*synchronized */void outputCommandMessage(String message) {
 		this.outputArea.addLine(COMMAND_CARAT + " " + message, COMMAND_COLOR);
 	}
 	
-	public void outputPacketMessage(PacketMessage message, PacketData data) {
+	public /*synchronized */void outputPacketMessage(PacketMessage message, PacketData data) {
 		String header = "["
 				+ data.TIMESTAMP.format(DateTimeFormatter.ISO_LOCAL_TIME)
 				+ "]"
@@ -175,5 +177,7 @@ public abstract class ApplicationWindow extends Application {
 	 * @return Returns the permission rank available to this application.
 	 */
 	public abstract Level getPermissionRank();
+	
+	protected abstract void initGUI(Stage stage);
 	
 }

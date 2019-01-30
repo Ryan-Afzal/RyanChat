@@ -113,7 +113,7 @@ public class Client extends Task<Void> {
 		            Thread pingThread = new Thread(ping);
 		            serverInThread.start();
 		            serverOutThread.start();
-		            pingThread.start();
+		            //TODO pingThread.start();
 				} catch (UnknownHostException e) {
 					e.printStackTrace();
 				} catch (IOException e) {
