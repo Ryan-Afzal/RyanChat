@@ -120,7 +120,6 @@ public class ClientGUI extends ApplicationWindow {
 			this.levelToggleButtons[i].setToggleGroup(this.levelToggleGroup);
 			levelToggles.getChildren().add(this.levelToggleButtons[i]);
 		}
-		this.levelToggleButtons[0].fire();
 		messageDataPane.add(levelToggles, 0, 0);
 		
 		
@@ -136,6 +135,8 @@ public class ClientGUI extends ApplicationWindow {
 		
 		this.client = new Client(this);
 		new Thread(this.client).start();
+		
+		this.levelToggleButtons[0].fire();
 	}
 	
 	@Override
