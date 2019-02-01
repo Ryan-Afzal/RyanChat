@@ -68,13 +68,16 @@ public class Server extends Task<Void> {
 		User ryanafzal = new User("Ryan Afzal", "ryanafzal", 1337);
 		User brandonchen = new User("Brandon Chen", "brandonchen", 0226);
 		User fishbear = new User("Fish Bear", "fishbear", 2448);
+		User isabelleteh = new User("Isabelle Teh", "isabelleteh", 3559);
 		
 		this.addUser(ryanafzal);
 		this.addUser(brandonchen);
 		this.addUser(fishbear);
+		this.addUser(isabelleteh);
 		global.addUser(ryanafzal, Level.ADMIN);
 		global.addUser(brandonchen, Level.OFFICER);
 		global.addUser(fishbear, Level.MODERATOR);
+		global.addUser(isabelleteh, Level.USER);
 		
 		this.groups.put(Server.GLOBAL_GROUP_ID, global);
 		
