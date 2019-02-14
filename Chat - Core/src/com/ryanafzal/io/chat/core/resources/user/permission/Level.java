@@ -9,19 +9,23 @@ public enum Level implements Serializable {
 	/**
 	 * Accessible to all users of the system.
 	 */
-	USER("User", 0, Color.BLACK), 
+	USER("User", 0, Color.BLACK),
+	
 	/**
 	 * Accessible to moderators and above.
 	 */
-	MODERATOR("Moderator", 1, Color.MAGENTA), 
+	MODERATOR("Moderator", 1, Color.MAGENTA),
+	
 	/**
 	 * Accessible to officers and above.
 	 */
-	OFFICER("Officer", 2, Color.RED), 
+	OFFICER("Officer", 2, Color.RED),
+	
 	/**
 	 * Accessible to administrators and above.
 	 */
-	ADMIN("Admin", 3, Color.ORANGE), 
+	ADMIN("Admin", 3, Color.ORANGE),
+	
 	/**
 	 * Accessible only to the server itself. This should be used only for serverside commands.
 	 */
